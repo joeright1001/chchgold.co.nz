@@ -23,7 +23,7 @@ async function getSpotPrices() {
       }
     });
 
-    const rates = response.data.rates;
+    const rates = response.data.metals;
     const goldGramNzd = 1 / rates.XAU; // Price of 1 gram of Gold in NZD
     const silverGramNzd = 1 / rates.XAG; // Price of 1 gram of Silver in NZD
 

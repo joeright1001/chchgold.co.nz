@@ -17,8 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Import routes
-const staffQuoteRoutes = require('./src/routes/public/quoteRoutes');
-const customerQuoteRoutes = require('./src/routes/public/customerQuoteRoutes');
+const quoteRoutes = require('./src/routes/quoteRoutes');
 const adminRoutes = require('./src/routes/admin/adminRoutes');
 const { staffAuth } = require('./src/middleware/auth');
 
@@ -27,11 +26,9 @@ app.get('/', (req, res) => {
   res.render('splash');
 });
 
-// Staff-only routes for creating and editing quotes
-app.use('/staff/quote', staffAuth, staffQuoteRoutes);
-
-// Public route for customers to view their quote
-app.use('/quote', customerQuoteRoutes);
+// All quote-related routes are now handled by a single router
+// Authentication is handled internally within the quote router
+app.use('/quote', quoteRoutes);
 
 // Admin routes - applying auth to all admin routes
 app.use('/admin', staffAuth, adminRoutes);

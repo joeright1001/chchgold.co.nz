@@ -23,7 +23,7 @@
                                 <td><%= quote.customer_first_name %> <%= quote.customer_surname %></td>
                                 <td><%= new Date(quote.created_at).toLocaleString() %></td>
                                 <td>
-                                    <a href="/staff/quote/edit/<%= quote.id %>" class="btn btn-sm btn-secondary">Edit (In-Person)</a>
+                                    <a href="/quote/edit/<%= quote.id %>" class="btn btn-sm btn-secondary">Edit (In-Person)</a>
                                     <a href="/admin/<%= quote.id %>" class="btn btn-sm btn-primary">Admin View</a>
                                 </td>
                             </tr>
