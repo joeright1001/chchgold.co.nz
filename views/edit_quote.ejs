@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Quote - <%= quote.quote_number %></title>
+</head>
+<body>
+    <h1>Editing Quote: <%= quote.quote_number %></h1>
+    <p><strong>Customer details are hidden in this view.</strong></p>
+    
+    <hr>
+    
+    <h2>Quote Details</h2>
+    <p><strong>Gold Spot Price:</strong> $<span id="gold-price"><%= quote.spot_price_gold %></span></p>
+    <p><strong>Silver Spot Price:</strong> $<span id="silver-price"><%= quote.spot_price_silver %></span></p>
+    <p><i>Last Updated: <%= new Date(quote.updated_at).toLocaleString() %></i></p>
+    
+    <form action="/staff/quote/edit/<%= quote.id %>" method="POST">
+        <h3>Items</h3>
+        <% items.forEach((item, index) => { %>
+            <div>
+                <h4><%= item.item_name %></h4>
+                <input type="hidden" name="items[<%= index %>][id]" value="<%= item.id %>">
+                <p><strong>Metal:</strong> <%= item.metal_type %></p>
+                
+                <label for="percent<%= index %>">Percent (%):</label>
+                <input type="number" id="percent<%= index %>" name="items[<%= index %>][percent]" value="<%= item.percent %>" step="0.01">
+                
+                <label for="weight<%= index %>">Weight (g):</label>
+                <input type="number" id="weight<%= index %>" name="items[<%= index %>][weight]" value="<%= item.weight %>" step="0.01">
+            </div>
+            <br>
+        <% }); %>
+        
+        <button type="submit">Update Quote</button>
+        <button type="button" onclick="alert('Price refresh logic to be implemented.')">Refresh Live Price</button>
+    </form>
+    
+    <a href="/admin">Back to Dashboard</a>
+</body>
+</html>

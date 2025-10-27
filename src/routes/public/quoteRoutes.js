@@ -29,9 +29,20 @@ router.post('/create', async (req, res) => {
 });
 
 // GET /quote/edit/:id - Renders the "in-person" edit view
-router.get('/edit/:id', (req, res) => {
-  // Placeholder - we will fetch quote data and render an EJS template here
-  res.send(`This is the edit page for quote ID: ${req.params.id}`);
+router.get('/edit/:id', async (req, res) => {
+  try {
+    const quoteData = await quoteService.getQuoteById(req.params.id);
+    if (!quoteData) {
+      return res.status(404).send('Quote not found');
+    }
+    res.render('edit_quote', {
+      quote: quoteData.quote,
+      items: quoteData.items,
+    });
+  } catch (error) {
+    console.error(`Error fetching quote for edit view (ID: ${req.params.id}):`, error);
+    res.status(500).send('Server error');
+  }
 });
 
 module.exports = router;

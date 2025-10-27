@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Bullion Quote - <%= quote.quote_number %></title>
+</head>
+<body>
+    <h1>Quote <%= quote.quote_number %></h1>
+    <p><strong>This is a read-only view of your quote.</strong></p>
+    
+    <hr>
+    
+    <h2>Quote Details</h2>
+    <p><strong>Gold Spot Price:</strong> $<%= quote.spot_price_gold %></p>
+    <p><strong>Silver Spot Price:</strong> $<%= quote.spot_price_silver %></p>
+    <p><i>Quote valid as of: <%= new Date(quote.updated_at).toLocaleString() %></i></p>
+    
+    <h3>Items</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Metal Type</th>
+                <th>Percent</th>
+                <th>Weight (g)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% items.forEach(item => { %>
+                <tr>
+                    <td><%= item.item_name %></td>
+                    <td><%= item.metal_type %></td>
+                    <td><%= item.percent %> %</td>
+                    <td><%= item.weight %> g</td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+    
+    <h2>Next Steps</h2>
+    <p>Please contact us to proceed with this quote.</p>
+</body>
+</html>

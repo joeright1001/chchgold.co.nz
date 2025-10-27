@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin View - Quote <%= quote.quote_number %></title>
+</head>
+<body>
+    <h1>Admin View: Quote <%= quote.quote_number %></h1>
+    
+    <h2>Customer Details (Visible to Admin Only)</h2>
+    <p><strong>First Name:</strong> <%= quote.customer_first_name %></p>
+    <p><strong>Surname:</strong> <%= quote.customer_surname %></p>
+    <p><strong>Mobile:</strong> <%= quote.customer_mobile %></p>
+    <p><strong>Email:</strong> <%= quote.customer_email %></p>
+    <p><strong>Zoho ID:</strong> <%= quote.zoho_id %></p>
+    
+    <hr>
+    
+    <h2>Quote Details</h2>
+    <p><strong>Created:</strong> <%= new Date(quote.created_at).toLocaleString() %></p>
+    <p><strong>Last Updated:</strong> <%= new Date(quote.updated_at).toLocaleString() %></p>
+    <p><strong>Gold Spot Price at Update:</strong> $<%= quote.spot_price_gold %></p>
+    <p><strong>Silver Spot Price at Update:</strong> $<%= quote.spot_price_silver %></p>
+    
+    <h3>Items</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Metal Type</th>
+                <th>Percent</th>
+                <th>Weight (g)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% items.forEach(item => { %>
+                <tr>
+                    <td><%= item.item_name %></td>
+                    <td><%= item.metal_type %></td>
+                    <td><%= item.percent %> %</td>
+                    <td><%= item.weight %> g</td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+    
+    <a href="/admin">Back to Dashboard</a>
+</body>
+</html>

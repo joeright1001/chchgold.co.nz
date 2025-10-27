@@ -101,7 +101,38 @@ async function createQuote(customerDetails, items) {
 }
 
 
+/**
+ * Retrieves a single quote and its items by the quote's UUID.
+ * @param {string} id - The UUID of the quote.
+ * @returns {Promise<{quote: object, items: Array<object>}>} The quote and its items.
+ */
+async function getQuoteById(id) {
+  const client = await pool.connect();
+  try {
+    const quoteQuery = 'SELECT * FROM quotes WHERE id = $1';
+    const itemsQuery = 'SELECT * FROM quote_items WHERE quote_id = $1';
+
+    const quoteResult = await client.query(quoteQuery, [id]);
+    const itemsResult = await client.query(itemsQuery, [id]);
+
+    if (quoteResult.rows.length === 0) {
+      return null; // Or throw an error
+    }
+
+    return {
+      quote: quoteResult.rows[0],
+      items: itemsResult.rows,
+    };
+  } catch (error) {
+    console.error(`Error fetching quote by id ${id}:`, error);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   getNextQuoteNumber,
   createQuote,
+  getQuoteById,
 };
