@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 require('dotenv').config();
+const logger = require('../utils/logger');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -9,11 +10,11 @@ const pool = new Pool({
 });
 
 pool.on('connect', () => {
-  console.log('Database connected successfully');
+  logger.info('Database connected successfully');
 });
 
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
+  logger.error('Unexpected error on idle database client', { error: err });
   process.exit(-1);
 });
 

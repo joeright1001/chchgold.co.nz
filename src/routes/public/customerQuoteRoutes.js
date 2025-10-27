@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const logger = require('../../utils/logger');
 const quoteService = require('../../services/quoteService');
 
 // GET /view/:id - The customer-facing view of the quote
@@ -15,10 +15,10 @@ router.get('/:id', async (req, res) => {
             quote: quoteData.quote,
             items: quoteData.items,
         });
-    } catch (error) {
-        console.error(`Error fetching quote for customer view (ID: ${req.params.id}):`, error);
-        res.status(500).send('Server error');
-    }
+  } catch (error) {
+    logger.error(`Error fetching quote for customer view (ID: ${req.params.id})`, { error: error.message });
+    res.status(500).send('Server error');
+  }
 });
 
 module.exports = router;

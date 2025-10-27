@@ -1,4 +1,5 @@
 const pool = require('../config/database');
+const logger = require('../utils/logger');
 
 /**
  * Generates the next sequential quote number (e.g., SBQ-000284).
@@ -21,7 +22,7 @@ async function getNextQuoteNumber() {
     return `SBQ-${String(nextValue).padStart(6, '0')}`;
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Error generating quote number:', error);
+    logger.error('Error generating quote number', { error });
     throw error;
   } finally {
     client.release();
@@ -93,7 +94,7 @@ async function createQuote(customerDetails, items) {
     return newQuote;
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Error creating quote:', error);
+    logger.error('Error creating quote', { error });
     throw error;
   } finally {
     client.release();
@@ -124,7 +125,7 @@ async function getQuoteById(id) {
       items: itemsResult.rows,
     };
   } catch (error) {
-    console.error(`Error fetching quote by id ${id}:`, error);
+    logger.error(`Error fetching quote by id ${id}`, { error });
     throw error;
   } finally {
     client.release();

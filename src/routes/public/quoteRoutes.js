@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const quoteService = require('../../services/quoteService');
+const logger = require('../../utils/logger');
 
 // GET /quote/create - Renders the new quote creation page
 router.get('/create', (req, res) => {
@@ -23,7 +24,7 @@ router.post('/create', async (req, res) => {
     res.redirect(`/quote/edit/${newQuote.id}`);
 
   } catch (error) {
-    console.error('Error in POST /quote/create:', error);
+    logger.error('Error in POST /staff/quote/create', { error: error.message });
     res.status(500).json({ error: 'Failed to create quote' });
   }
 });
@@ -40,7 +41,7 @@ router.get('/edit/:id', async (req, res) => {
       items: quoteData.items,
     });
   } catch (error) {
-    console.error(`Error fetching quote for edit view (ID: ${req.params.id}):`, error);
+    logger.error(`Error fetching quote for edit view (ID: ${req.params.id})`, { error: error.message });
     res.status(500).send('Server error');
   }
 });

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../../config/database');
 const quoteService = require('../../services/quoteService');
+const logger = require('../../utils/logger');
 
 // GET /admin - Displays a list of all quotes
 router.get('/', async (req, res) => {
@@ -9,7 +10,7 @@ router.get('/', async (req, res) => {
     const result = await pool.query('SELECT id, quote_number, customer_first_name, customer_surname, created_at FROM quotes ORDER BY created_at DESC');
     res.render('admin_dashboard', { quotes: result.rows });
   } catch (error) {
-    console.error('Error fetching quotes for admin dashboard:', error);
+    logger.error('Error fetching quotes for admin dashboard', { error: error.message });
     res.status(500).send('Server error');
   }
 });
@@ -26,7 +27,7 @@ router.get('/:id', async (req, res) => {
       items: quoteData.items,
     });
   } catch (error) {
-    console.error(`Error fetching quote for admin view (ID: ${req.params.id}):`, error);
+    logger.error(`Error fetching quote for admin view (ID: ${req.params.id})`, { error: error.message });
     res.status(500).send('Server error');
   }
 });

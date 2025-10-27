@@ -3,6 +3,7 @@ process.env.TZ = 'Pacific/Auckland';
 
 const express = require("express");
 const path = require('path');
+const logger = require('./src/utils/logger');
 
 const app = express();
 
@@ -34,14 +35,20 @@ app.use('/quote', customerQuoteRoutes);
 // Admin routes - applying auth to all admin routes
 app.use('/admin', staffAuth, adminRoutes);
 
+// Request logging middleware
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.originalUrl}`, { ip: req.ip });
+  next();
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  logger.error(err.message, { url: req.originalUrl, stack: err.stack });
   res.status(500).send('Something broke!');
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  logger.info(`Server is running on port ${PORT}`);
 });

@@ -1,4 +1,5 @@
 const axios = require('axios');
+const logger = require('../utils/logger');
 
 /**
  * Fetches the current spot prices for gold and silver.
@@ -16,13 +17,13 @@ async function getSpotPrices() {
     // return { gold: prices.gold, silver: prices.silver };
 
     // For now, we'll return mock data.
-    console.log('Fetching mock spot prices...');
+    logger.info('Fetching mock spot prices...');
     return {
       gold: 3500.50, // Mock price per ounce
       silver: 45.75    // Mock price per ounce
     };
   } catch (error) {
-    console.error('Error fetching spot prices:', error);
+    logger.error('Error fetching spot prices', { error: error.message });
     // Fallback to default values if the API fails
     return {
       gold: 3500.00,
