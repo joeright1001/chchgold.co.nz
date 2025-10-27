@@ -18,10 +18,13 @@ router.post('/create', async (req, res) => {
       return res.status(400).json({ error: 'Missing customer details or items.' });
     }
 
-    const newQuote = await quoteService.createQuote(customerDetails, items);
+    // Filter out empty item rows before processing
+    const filledItems = items.filter(item => item && item.name && item.name.trim() !== '');
+
+    const newQuote = await quoteService.createQuote(customerDetails, filledItems);
     
     // As per the workflow, redirect to the edit page after creation
-    res.redirect(`/quote/edit/${newQuote.id}`);
+    res.redirect(`/staff/quote/edit/${newQuote.id}`);
 
   } catch (error) {
     logger.error('Error in POST /staff/quote/create', { error: error.message });
