@@ -29,8 +29,10 @@
                     <div class="card-body">
                         <p><strong>Created:</strong> <%= new Date(quote.created_at).toLocaleString() %></p>
                         <p><strong>Last Updated:</strong> <%= new Date(quote.updated_at).toLocaleString() %></p>
-                        <p><strong>Gold Spot Price at Update:</strong> $<%= quote.spot_price_gold %></p>
-                        <p><strong>Silver Spot Price at Update:</strong> $<%= quote.spot_price_silver %></p>
+                        <p><strong>Gold (oz):</strong> $<%= Number(quote.spot_price_gold_ounce_nzd).toFixed(2) %></p>
+                        <p><strong>Gold (g):</strong> $<%= Number(quote.spot_price_gold_gram_nzd).toFixed(2) %></p>
+                        <p><strong>Silver (oz):</strong> $<%= Number(quote.spot_price_silver_ounce_nzd).toFixed(2) %></p>
+                        <p><strong>Silver (g):</strong> $<%= Number(quote.spot_price_silver_gram_nzd).toFixed(2) %></p>
                     </div>
                 </div>
             </div>

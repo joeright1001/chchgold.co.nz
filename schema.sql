@@ -7,8 +7,10 @@ CREATE TABLE quotes (
     customer_mobile VARCHAR(255),
     customer_email VARCHAR(255),
     zoho_id VARCHAR(255),
-    spot_price_gold DECIMAL(10, 4),
-    spot_price_silver DECIMAL(10, 4),
+    spot_price_gold_gram_nzd DECIMAL(10, 4),
+    spot_price_silver_gram_nzd DECIMAL(10, 4),
+    spot_price_gold_ounce_nzd DECIMAL(10, 4),
+    spot_price_silver_ounce_nzd DECIMAL(10, 4),
     totals JSONB,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()

@@ -60,8 +60,12 @@ async function createQuote(customerDetails, items) {
 
     // 4. Insert the main quote record
     const quoteInsertQuery = `
-      INSERT INTO quotes (quote_number, customer_first_name, customer_surname, customer_mobile, customer_email, zoho_id, spot_price_gold, spot_price_silver, totals)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      INSERT INTO quotes (
+        quote_number, customer_first_name, customer_surname, customer_mobile, customer_email, zoho_id, 
+        spot_price_gold_gram_nzd, spot_price_silver_gram_nzd, spot_price_gold_ounce_nzd, spot_price_silver_ounce_nzd, 
+        totals
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *;
     `;
     const quoteValues = [
@@ -71,8 +75,10 @@ async function createQuote(customerDetails, items) {
       customerDetails.mobile,
       customerDetails.email,
       customerDetails.zohoId,
-      spotPrices.gold,
-      spotPrices.silver,
+      spotPrices.gold_gram_nzd,
+      spotPrices.silver_gram_nzd,
+      spotPrices.gold_ounce_nzd,
+      spotPrices.silver_ounce_nzd,
       JSON.stringify(totals),
     ];
     const quoteResult = await client.query(quoteInsertQuery, quoteValues);

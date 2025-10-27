@@ -23,8 +23,10 @@
                         <h2>Quote Details</h2>
                     </div>
                     <div class="card-body">
-                        <p><strong>Gold Spot Price:</strong> $<%= quote.spot_price_gold %></p>
-                        <p><strong>Silver Spot Price:</strong> $<%= quote.spot_price_silver %></p>
+                        <p><strong>Gold (oz):</strong> $<%= Number(quote.spot_price_gold_ounce_nzd).toFixed(2) %></p>
+                        <p><strong>Gold (g):</strong> $<%= Number(quote.spot_price_gold_gram_nzd).toFixed(2) %></p>
+                        <p><strong>Silver (oz):</strong> $<%= Number(quote.spot_price_silver_ounce_nzd).toFixed(2) %></p>
+                        <p><strong>Silver (g):</strong> $<%= Number(quote.spot_price_silver_gram_nzd).toFixed(2) %></p>
                         <p><i>Quote valid as of: <%= new Date(quote.updated_at).toLocaleString() %></i></p>
                     </div>
                 </div>
