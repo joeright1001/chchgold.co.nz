@@ -12,6 +12,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Middleware
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -21,9 +22,9 @@ const customerQuoteRoutes = require('./src/routes/public/customerQuoteRoutes');
 const adminRoutes = require('./src/routes/admin/adminRoutes');
 const { staffAuth } = require('./src/middleware/auth');
 
-// Basic route for testing
+// Root route - displays splash page and redirects
 app.get('/', (req, res) => {
-  res.send('ChchGold Sell Bullion Quote server is running.');
+  res.render('splash');
 });
 
 // Staff-only routes for creating and editing quotes

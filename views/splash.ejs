@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to <%= process.env.COMPANY_NAME %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script>
+        setTimeout(() => {
+            window.location.href = 'https://www.christchurchgold.co.nz';
+        }, 1000);
+    </script>
+</head>
+<body class="splash">
+    <img src="<%= process.env.COMPANY_LOGO_URL %>" alt="<%= process.env.COMPANY_NAME %> Logo">
+</body>
+</html>
