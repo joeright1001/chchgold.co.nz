@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Bullion Quote</title>
+    <!-- We can add CSS frameworks like Bootstrap later for styling -->
+</head>
+<body>
+    <h1>Create New Bullion Quote</h1>
+    <form action="/quote/create" method="POST">
+        <h2>Customer Details</h2>
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="customerDetails[firstName]" required>
+        <br>
+        <label for="surname">Surname:</label>
+        <input type="text" id="surname" name="customerDetails[surname]" required>
+        <br>
+        <label for="mobile">Mobile:</label>
+        <input type="text" id="mobile" name="customerDetails[mobile]" required>
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="customerDetails[email]">
+        <br>
+        <label for="zohoId">Zoho ID:</label>
+        <input type="text" id="zohoId" name="customerDetails[zohoId]">
+        <hr>
+
+        <h2>Items</h2>
+        <% for(let i = 0; i < 8; i++) { %>
+            <div>
+                <h4>Item <%= i + 1 %></h4>
+                <label for="itemName<%= i %>">Item Name:</label>
+                <input type="text" id="itemName<%= i %>" name="items[<%= i %>][name]">
+                
+                <label for="metalType<%= i %>">Metal Type:</label>
+                <select id="metalType<%= i %>" name="items[<%= i %>][metalType]">
+                    <option value="Gold">Gold</option>
+                    <option value="Silver">Silver</option>
+                </select>
+                
+                <label for="percent<%= i %>">Percent (%):</label>
+                <input type="number" id="percent<%= i %>" name="items[<%= i %>][percent]" step="0.01">
+                
+                <label for="weight<%= i %>">Weight (g):</label>
+                <input type="number" id="weight<%= i %>" name="items[<%= i %>][weight]" step="0.01">
+            </div>
+            <br>
+        <% } %>
+        
+        <button type="submit">Get Live Price & Create Quote</button>
+    </form>
+</body>
+</html>
