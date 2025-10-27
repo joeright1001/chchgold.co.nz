@@ -11,3 +11,47 @@ body.splash img {
     max-width: 80%;
     max-height: 80%;
 }
+
+.spot-price-display p {
+    font-size: 1.55rem; /* Increased font size */
+    color: #343a40; /* Dark grey color */
+    margin-bottom: 0.5rem; /* Adjust spacing */
+}
+
+.last-updated-text {
+    font-size: 1rem !important; /* Override for the last updated text */
+}
+
+.currency-unit {
+    font-size: 1.05rem; /* Smaller font size for NZD */
+    color: #343a40; /*  */
+}
+
+/* Admin Dashboard Styles */
+.container {
+    max-width: 1440px; /* 20% wider than 1200px */
+}
+
+.card {
+    max-width: 100%; /* Allow card to fill the new container width */
+    margin: auto;
+}
+
+.col-items {
+    width: 40%;
+}
+
+/* Edit Quote Page Styles */
+.item-row p strong {
+    font-size: 1.25rem;
+}
+
+.grand-total-title {
+    font-size: 1.75rem;
+    font-weight: bold;
+}
+
+.grand-total-value {
+    font-size: 1.75rem;
+    font-weight: bold;
+}

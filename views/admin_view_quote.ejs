@@ -1,71 +1,140 @@
-<%- include('partials/header', { title: `Admin View - ${quote.quote_number}` }) %>
+<%- include('partials/header', { title: `Edit Quote - ${quote.quote_number}` }) %>
 
-<div class="card">
+<link rel="stylesheet" href="/css/edit_quote.css">
+
+<div class="card" id="edit-quote-card" 
+    data-quote-id="<%= quote.id %>" 
+    data-gold-gram-nzd="<%= Number(quote.spot_price_gold_gram_nzd) || 0 %>" 
+    data-silver-gram-nzd="<%= Number(quote.spot_price_silver_gram_nzd) || 0 %>">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h1>Admin View: <%= quote.quote_number %></h1>
+        <h1>Edit Quote: <%= quote.quote_number %></h1>
         <a href="/admin" class="btn btn-secondary">Back to Dashboard</a>
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h2>Customer Details (Visible to Admin Only)</h2>
+        <form action="/admin/quote/<%= quote.id %>" method="POST">
+            <!-- Editable Customer Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Customer Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="firstName" class="form-label">First Name:</label>
+                            <input type="text" class="form-control" id="firstName" name="customerDetails[firstName]" value="<%= quote.customer_first_name %>" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="surname" class="form-label">Surname:</label>
+                            <input type="text" class="form-control" id="surname" name="customerDetails[surname]" value="<%= quote.customer_surname %>" required>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <p><strong>First Name:</strong> <%= quote.customer_first_name %></p>
-                        <p><strong>Surname:</strong> <%= quote.customer_surname %></p>
-                        <p><strong>Mobile:</strong> <%= quote.customer_mobile %></p>
-                        <p><strong>Email:</strong> <%= quote.customer_email %></p>
-                        <p><strong>Zoho ID:</strong> <%= quote.zoho_id %></p>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="mobile" class="form-label">Mobile:</label>
+                            <input type="text" class="form-control" id="mobile" name="customerDetails[mobile]" value="<%= quote.customer_mobile %>" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email:</label>
+                            <input type="email" class="form-control" id="email" name="customerDetails[email]" value="<%= quote.customer_email %>">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="zohoId" class="form-label">Zoho ID:</label>
+                            <input type="text" class="form-control" id="zohoId" name="customerDetails[zohoId]" value="<%= quote.zoho_id %>">
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h2>Quote Details</h2>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Created:</strong> <%= new Date(quote.created_at).toLocaleString() %></p>
-                        <p><strong>Last Updated:</strong> <%= new Date(quote.updated_at).toLocaleString() %></p>
-                        <p><strong>Gold (oz):</strong> $<%= Number(quote.spot_price_gold_ounce_nzd).toFixed(2) %></p>
-                        <p><strong>Gold (g):</strong> $<%= Number(quote.spot_price_gold_gram_nzd).toFixed(2) %></p>
-                        <p><strong>Silver (oz):</strong> $<%= Number(quote.spot_price_silver_ounce_nzd).toFixed(2) %></p>
-                        <p><strong>Silver (g):</strong> $<%= Number(quote.spot_price_silver_gram_nzd).toFixed(2) %></p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="card mt-4">
-            <div class="card-header">
-                <h3>Items</h3>
+            <!-- Customer URL Panel -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Customer URL</h2>
+                </div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="customer-url" value="<%= customerUrl %>" readonly>
+                        <button class="btn btn-outline-secondary" type="button" id="copy-url-btn">Copy</button>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Item Name</th>
-                            <th>Metal Type</th>
-                            <th>Percent</th>
-                            <th>Weight (g)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% items.forEach(item => { %>
-                            <tr>
-                                <td><%= item.item_name %></td>
-                                <td><%= item.metal_type %></td>
-                                <td><%= item.percent %> %</td>
-                                <td><%= item.weight %> g</td>
-                            </tr>
-                        <% }); %>
-                    </tbody>
-                </table>
+
+            <%- include('partials/_items_live_price_section', { items: items, quote: quote }) %>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Update Quote</button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const card = document.getElementById('edit-quote-card');
+    const refreshBtn = document.getElementById('refresh-price-btn');
+    const copyUrlBtn = document.getElementById('copy-url-btn');
+    const customerUrlInput = document.getElementById('customer-url');
+    const quoteId = card.dataset.quoteId;
+
+    refreshBtn.addEventListener('click', async () => {
+        const spinner = refreshBtn.querySelector('.spinner-border');
+        const errorDiv = document.getElementById('price-error');
+
+        // Start loading
+        refreshBtn.disabled = true;
+        spinner.classList.remove('d-none');
+        errorDiv.textContent = '';
+
+        try {
+            const response = await fetch(`/quote/edit/${quoteId}/refresh-price`, {
+                method: 'POST',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch latest prices from the server.');
+            }
+
+            const updatedQuote = await response.json();
+            
+            card.dataset.goldGramNzd = updatedQuote.spot_price_gold_gram_nzd;
+            card.dataset.silverGramNzd = updatedQuote.spot_price_silver_gram_nzd;
+
+            document.getElementById('gold-oz-price').textContent = Number(updatedQuote.spot_price_gold_ounce_nzd).toFixed(2);
+            document.getElementById('gold-g-price').textContent = Number(updatedQuote.spot_price_gold_gram_nzd).toFixed(2);
+            document.getElementById('silver-oz-price').textContent = Number(updatedQuote.spot_price_silver_ounce_nzd).toFixed(2);
+            document.getElementById('silver-g-price').textContent = Number(updatedQuote.spot_price_silver_gram_nzd).toFixed(2);
+            document.getElementById('last-updated').textContent = new Date(updatedQuote.updated_at).toLocaleString();
+
+            // The updateLivePrices function is now in the partial, so we need to call it from there.
+            // We can trigger a custom event to notify the partial that prices have been updated.
+            const event = new CustomEvent('pricesUpdated', { 
+                detail: {
+                    gold_gram_nzd: updatedQuote.spot_price_gold_gram_nzd,
+                    silver_gram_nzd: updatedQuote.spot_price_silver_gram_nzd
+                }
+            });
+            document.dispatchEvent(event);
+
+        } catch (error) {
+            console.error('Error refreshing prices:', error);
+            errorDiv.textContent = 'Error: Could not update live prices. Please try again.';
+        } finally {
+            // End loading
+            refreshBtn.disabled = false;
+            spinner.classList.add('d-none');
+        }
+    });
+
+    copyUrlBtn.addEventListener('click', () => {
+        customerUrlInput.select();
+        document.execCommand('copy');
+        copyUrlBtn.textContent = 'Copied!';
+        setTimeout(() => {
+            copyUrlBtn.textContent = 'Copy';
+        }, 2000);
+    });
+});
+</script>
 
 <%- include('partials/footer') %>

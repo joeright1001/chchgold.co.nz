@@ -23,7 +23,9 @@ CREATE TABLE quote_items (
     item_name TEXT,
     metal_type VARCHAR(50),
     percent DECIMAL(5, 2),
-    weight DECIMAL(10, 2)
+    weight DECIMAL(10, 2),
+    weight_type VARCHAR(50),
+    quantity INTEGER NOT NULL DEFAULT 1
 );
 
 -- Create the sequences table for quote numbers
@@ -49,6 +51,16 @@ CREATE TRIGGER set_timestamp
 BEFORE UPDATE ON quotes
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
+
+-- Create the settings table
+CREATE TABLE settings (
+    key VARCHAR(255) PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Initialize the spot normalisation offset setting (default 0.25%)
+INSERT INTO settings (key, value) VALUES ('spot_normalisation_offset', '0.25');
 
 -- Add indexes for performance
 CREATE INDEX idx_quotes_customer_mobile ON quotes(customer_mobile);

@@ -1,0 +1,48 @@
+.item-details-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.item-details-row > div {
+    position: relative;
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.col-item-name {
+    flex: 0 0 30%;
+    max-width: 30%;
+}
+
+.col-metal-type {
+    flex: 0 0 10%;
+    max-width: 10%;
+}
+
+.col-qty {
+    flex: 0 0 8%;
+    max-width: 8%;
+}
+
+.col-percent {
+    flex: 0 0 8%;
+    max-width: 8%;
+}
+
+.col-weight-type {
+    flex: 0 0 12%;
+    max-width: 12%;
+}
+
+.col-weight {
+    flex: 0 0 12%;
+    max-width: 12%;
+}
+
+.col-live-price {
+    flex: 0 0 17%;
+    max-width: 17%;
+}

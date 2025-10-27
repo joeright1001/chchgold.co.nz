@@ -1,58 +1,105 @@
 <%- include('partials/header', { title: `Edit Quote - ${quote.quote_number}` }) %>
 
-<div class="card">
+<link rel="stylesheet" href="/css/edit_quote.css">
+
+<div class="card" id="edit-quote-card" 
+    data-quote-id="<%= quote.id %>" 
+    data-gold-gram-nzd="<%= Number(quote.spot_price_gold_gram_nzd) || 0 %>" 
+    data-silver-gram-nzd="<%= Number(quote.spot_price_silver_gram_nzd) || 0 %>">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h1>Editing Quote: <%= quote.quote_number %></h1>
+        <h1>Sell Bullion:  <%= quote.quote_number %></h1>
         <a href="/admin" class="btn btn-secondary">Back to Dashboard</a>
     </div>
     <div class="card-body">
-        <div class="alert alert-info"><strong>Customer details are hidden in this view.</strong></div>
-        
+        <!-- Customer URL Panel -->
         <div class="card mb-4">
             <div class="card-header">
-                <h2>Quote Details</h2>
+                <h2>Customer URL</h2>
             </div>
             <div class="card-body">
-                <p><strong>Gold (oz):</strong> $<span id="gold-oz-price"><%= Number(quote.spot_price_gold_ounce_nzd).toFixed(2) %></span></p>
-                <p><strong>Gold (g):</strong> $<span id="gold-g-price"><%= Number(quote.spot_price_gold_gram_nzd).toFixed(2) %></span></p>
-                <p><strong>Silver (oz):</strong> $<span id="silver-oz-price"><%= Number(quote.spot_price_silver_ounce_nzd).toFixed(2) %></span></p>
-                <p><strong>Silver (g):</strong> $<span id="silver-g-price"><%= Number(quote.spot_price_silver_gram_nzd).toFixed(2) %></span></p>
-                <p><i>Last Updated: <%= new Date(quote.updated_at).toLocaleString() %></i></p>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="customer-url" value="<%= customerUrl %>" readonly>
+                    <button class="btn btn-outline-secondary" type="button" id="copy-url-btn">Copy</button>
+                </div>
             </div>
         </div>
-        
+
         <form action="/staff/quote/edit/<%= quote.id %>" method="POST">
-            <div class="card">
-                <div class="card-header">
-                    <h3>Items</h3>
-                </div>
-                <div class="card-body">
-                    <% items.forEach((item, index) => { %>
-                        <div class="row align-items-center mb-3 p-2 border rounded">
-                            <h5 class="col-12 mb-2"><%= item.item_name %></h5>
-                            <input type="hidden" name="items[<%= index %>][id]" value="<%= item.id %>">
-                            <div class="col-md-4">
-                                <p><strong>Metal:</strong> <%= item.metal_type %></p>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="percent<%= index %>" class="form-label">Percent (%):</label>
-                                <input type="number" class="form-control" id="percent<%= index %>" name="items[<%= index %>][percent]" value="<%= item.percent %>" step="0.01">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="weight<%= index %>" class="form-label">Weight (g):</label>
-                                <input type="number" class="form-control" id="weight<%= index %>" name="items[<%= index %>][weight]" value="<%= item.weight %>" step="0.01">
-                            </div>
-                        </div>
-                    <% }); %>
-                </div>
-            </div>
+            <%- include('partials/_items_live_price_section', { items: items, quote: quote }) %>
             
             <div class="mt-4">
                 <button type="submit" class="btn btn-primary">Update Quote</button>
-                <button type="button" class="btn btn-info" onclick="alert('Price refresh logic to be implemented.')">Refresh Live Price</button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const card = document.getElementById('edit-quote-card');
+    const refreshBtn = document.getElementById('refresh-price-btn');
+    const copyUrlBtn = document.getElementById('copy-url-btn');
+    const customerUrlInput = document.getElementById('customer-url');
+    const quoteId = card.dataset.quoteId;
+
+    refreshBtn.addEventListener('click', async () => {
+        const spinner = refreshBtn.querySelector('.spinner-border');
+        const errorDiv = document.getElementById('price-error');
+
+        // Start loading
+        refreshBtn.disabled = true;
+        spinner.classList.remove('d-none');
+        errorDiv.textContent = '';
+
+        try {
+            const response = await fetch(`/quote/edit/${quoteId}/refresh-price`, {
+                method: 'POST',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch latest prices from the server.');
+            }
+
+            const updatedQuote = await response.json();
+            
+            card.dataset.goldGramNzd = updatedQuote.spot_price_gold_gram_nzd;
+            card.dataset.silverGramNzd = updatedQuote.spot_price_silver_gram_nzd;
+
+            document.getElementById('gold-oz-price').textContent = Number(updatedQuote.spot_price_gold_ounce_nzd).toFixed(2);
+            document.getElementById('gold-g-price').textContent = Number(updatedQuote.spot_price_gold_gram_nzd).toFixed(2);
+            document.getElementById('silver-oz-price').textContent = Number(updatedQuote.spot_price_silver_ounce_nzd).toFixed(2);
+            document.getElementById('silver-g-price').textContent = Number(updatedQuote.spot_price_silver_gram_nzd).toFixed(2);
+            document.getElementById('last-updated').textContent = new Date(updatedQuote.updated_at).toLocaleString();
+
+            // The updateLivePrices function is now in the partial, so we need to call it from there.
+            // We can trigger a custom event to notify the partial that prices have been updated.
+            const event = new CustomEvent('pricesUpdated', { 
+                detail: {
+                    gold_gram_nzd: updatedQuote.spot_price_gold_gram_nzd,
+                    silver_gram_nzd: updatedQuote.spot_price_silver_gram_nzd
+                }
+            });
+            document.dispatchEvent(event);
+
+        } catch (error) {
+            console.error('Error refreshing prices:', error);
+            errorDiv.textContent = 'Error: Could not update live prices. Please try again.';
+        } finally {
+            // End loading
+            refreshBtn.disabled = false;
+            spinner.classList.add('d-none');
+        }
+    });
+
+    copyUrlBtn.addEventListener('click', () => {
+        customerUrlInput.select();
+        document.execCommand('copy');
+        copyUrlBtn.textContent = 'Copied!';
+        setTimeout(() => {
+            copyUrlBtn.textContent = 'Copy';
+        }, 2000);
+    });
+});
+</script>
 
 <%- include('partials/footer') %>

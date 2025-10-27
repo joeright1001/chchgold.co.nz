@@ -1,0 +1,30 @@
+<%- include('partials/header', { title: 'Customer Login' }) %>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h1>View Your Quote</h1>
+                </div>
+                <div class="card-body">
+                    <p>To securely view your quote, please enter the mobile number or email address associated with it.</p>
+                    <% if (error) { %>
+                        <div class="alert alert-danger" role="alert">
+                            <%= error %>
+                        </div>
+                    <% } %>
+                    <form action="/quote/<%= quoteId %>/login" method="POST">
+                        <div class="mb-3">
+                            <label for="credential" class="form-label">Mobile or Email:</label>
+                            <input type="text" class="form-control" id="credential" name="credential" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">View Quote</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

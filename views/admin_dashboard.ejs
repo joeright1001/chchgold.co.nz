@@ -1,5 +1,33 @@
 <%- include('partials/header', { title: 'Admin Dashboard' }) %>
 
+<div class="card mb-4">
+    <div class="card-header">
+        <h2>Configuration</h2>
+    </div>
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <label for="spotOffset" class="form-label">Spot Normalisation % Offset:</label>
+            </div>
+            <div class="col-md-3">
+                <div class="input-group">
+                    <input type="number" class="form-control" id="spotOffset" value="<%= spotNormalisationOffset %>" step="0.01" min="0" max="100">
+                    <span class="input-group-text">%</span>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <button type="button" id="updateOffsetBtn" class="btn btn-warning">Update Offset</button>
+                <div id="offset-message" class="mt-2"></div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-12">
+                <small class="text-muted">This offset will be applied to all spot prices before displaying or updating quotes.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header">
         <h1>Admin Dashboard - All Quotes</h1>
@@ -10,6 +38,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>Quote Number</th>
+                        <th class="col-items">Items</th>
                         <th>Customer Name</th>
                         <th>Created At</th>
                         <th>Actions</th>
@@ -20,10 +49,11 @@
                         <% quotes.forEach(quote => { %>
                             <tr>
                                 <td><%= quote.quote_number %></td>
+                                <td class="col-items"><%= quote.items %></td>
                                 <td><%= quote.customer_first_name %> <%= quote.customer_surname %></td>
                                 <td><%= new Date(quote.created_at).toLocaleString() %></td>
                                 <td>
-                                    <a href="/quote/edit/<%= quote.id %>" class="btn btn-sm btn-secondary">Edit (In-Person)</a>
+                                    <a href="/quote/edit/<%= quote.id %>" class="btn btn-sm btn-secondary">Display View</a>
                                     <a href="/admin/<%= quote.id %>" class="btn btn-sm btn-primary">Admin View</a>
                                 </td>
                             </tr>
@@ -38,5 +68,69 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const updateBtn = document.getElementById('updateOffsetBtn');
+    const offsetInput = document.getElementById('spotOffset');
+    const messageDiv = document.getElementById('offset-message');
+
+    updateBtn.addEventListener('click', async () => {
+        const newOffset = parseFloat(offsetInput.value);
+        
+        // Validate input
+        if (isNaN(newOffset) || newOffset < 0 || newOffset > 100) {
+            messageDiv.innerHTML = '<span class="text-danger">Please enter a valid percentage between 0 and 100.</span>';
+            return;
+        }
+
+        // Show confirmation dialog
+        const confirmed = confirm(
+            `WARNING: This will affect all spot price calculations.\n\n` +
+            `Current offset: <%= spotNormalisationOffset %>%\n` +
+            `New offset: ${newOffset}%\n\n` +
+            `Are you sure you want to update the Spot Normalisation Offset?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        // Show loading state
+        updateBtn.disabled = true;
+        updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+        messageDiv.innerHTML = '';
+
+        try {
+            const response = await fetch('/admin/settings/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    spot_normalisation_offset: newOffset.toString()
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                messageDiv.innerHTML = '<span class="text-success">✓ Offset updated successfully! The new offset will be applied to all future spot price calculations.</span>';
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                messageDiv.innerHTML = `<span class="text-danger">Error: ${data.error}</span>`;
+            }
+        } catch (error) {
+            console.error('Error updating offset:', error);
+            messageDiv.innerHTML = '<span class="text-danger">Error: Failed to update offset. Please try again.</span>';
+        } finally {
+            updateBtn.disabled = false;
+            updateBtn.innerHTML = 'Update Offset';
+        }
+    });
+});
+</script>
 
 <%- include('partials/footer') %>

@@ -3,6 +3,7 @@ process.env.TZ = 'Pacific/Auckland';
 
 const express = require("express");
 const path = require('path');
+const session = require('express-session');
 const logger = require('./src/utils/logger');
 
 const app = express();
@@ -15,6 +16,14 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// Session middleware for customer authentication
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'a_default_secret_for_development',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: process.env.NODE_ENV === 'production' } // Use secure cookies in production
+}));
 
 // Import routes
 const quoteRoutes = require('./src/routes/quoteRoutes');
