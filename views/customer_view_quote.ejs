@@ -133,16 +133,17 @@
                                 items.forEach(item => { 
                                     // Calculate row total based on metal type, weight, and percent
                                     const weight = Number(item.weight);
-                                    const percent = Number(item.percent);
-                                    const pureWeight = (weight * percent) / 100;
+                                    const percent = Number(item.percent) || 0;
                                     const quantity = item.quantity || 1;
                                     
-                                    let rowTotal = 0;
+                                    let basePricePerGram = 0;
                                     if (item.metal_type === 'Gold') {
-                                        rowTotal = pureWeight * Number(quote.spot_price_gold_gram_nzd);
+                                        basePricePerGram = Number(quote.spot_price_gold_gram_nzd);
                                     } else if (item.metal_type === 'Silver') {
-                                        rowTotal = pureWeight * Number(quote.spot_price_silver_gram_nzd);
+                                        basePricePerGram = Number(quote.spot_price_silver_gram_nzd);
                                     }
+
+                                    const rowTotal = (weight * basePricePerGram) * quantity * (1 - (percent / 100));
                                     
                                     grandTotal += rowTotal;
                                 %>
