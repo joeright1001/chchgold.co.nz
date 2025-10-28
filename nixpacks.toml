@@ -7,4 +7,4 @@ cmds = ["npm ci --omit=dev"]
 [phases.build]
 
 [start]
-cmd = "npm start"
+cmd = "node server.js"
