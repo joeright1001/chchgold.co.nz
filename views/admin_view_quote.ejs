@@ -71,61 +71,10 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const card = document.getElementById('edit-quote-card');
-    const refreshBtn = document.getElementById('refresh-price-btn');
     const copyUrlBtn = document.getElementById('copy-url-btn');
     const customerUrlInput = document.getElementById('customer-url');
-    const quoteId = card.dataset.quoteId;
 
-    refreshBtn.addEventListener('click', async () => {
-        const spinner = refreshBtn.querySelector('.spinner-border');
-        const errorDiv = document.getElementById('price-error');
-
-        // Start loading
-        refreshBtn.disabled = true;
-        spinner.classList.remove('d-none');
-        errorDiv.textContent = '';
-
-        try {
-            const response = await fetch(`/quote/edit/${quoteId}/refresh-price`, {
-                method: 'POST',
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch latest prices from the server.');
-            }
-
-            const updatedQuote = await response.json();
-            
-            card.dataset.goldGramNzd = updatedQuote.spot_price_gold_gram_nzd;
-            card.dataset.silverGramNzd = updatedQuote.spot_price_silver_gram_nzd;
-
-            document.getElementById('gold-oz-price').textContent = Number(updatedQuote.spot_price_gold_ounce_nzd).toFixed(2);
-            document.getElementById('gold-g-price').textContent = Number(updatedQuote.spot_price_gold_gram_nzd).toFixed(2);
-            document.getElementById('silver-oz-price').textContent = Number(updatedQuote.spot_price_silver_ounce_nzd).toFixed(2);
-            document.getElementById('silver-g-price').textContent = Number(updatedQuote.spot_price_silver_gram_nzd).toFixed(2);
-            document.getElementById('last-updated').textContent = new Date(updatedQuote.updated_at).toLocaleString();
-
-            // The updateLivePrices function is now in the partial, so we need to call it from there.
-            // We can trigger a custom event to notify the partial that prices have been updated.
-            const event = new CustomEvent('pricesUpdated', { 
-                detail: {
-                    gold_gram_nzd: updatedQuote.spot_price_gold_gram_nzd,
-                    silver_gram_nzd: updatedQuote.spot_price_silver_gram_nzd
-                }
-            });
-            document.dispatchEvent(event);
-
-        } catch (error) {
-            console.error('Error refreshing prices:', error);
-            errorDiv.textContent = 'Error: Could not update live prices. Please try again.';
-        } finally {
-            // End loading
-            refreshBtn.disabled = false;
-            spinner.classList.add('d-none');
-        }
-    });
-
+    // Handle copy URL button
     copyUrlBtn.addEventListener('click', () => {
         customerUrlInput.select();
         document.execCommand('copy');

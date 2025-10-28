@@ -62,64 +62,14 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const card = document.getElementById('create-quote-card');
     const form = document.getElementById('create-quote-form');
     const createQuoteBtn = document.getElementById('create-quote-btn');
-    const getLivePriceBtn = document.getElementById('get-live-price-btn');
-    const errorDiv = document.getElementById('price-error');
 
     // Handle form submission spinner
     form.addEventListener('submit', () => {
         const spinner = createQuoteBtn.querySelector('.spinner-border');
         createQuoteBtn.disabled = true;
         spinner.classList.remove('d-none');
-    });
-
-    getLivePriceBtn.addEventListener('click', async () => {
-        const spinner = getLivePriceBtn.querySelector('.spinner-border');
-
-        // Start loading
-        getLivePriceBtn.disabled = true;
-        spinner.classList.remove('d-none');
-        errorDiv.textContent = '';
-
-        try {
-            const response = await fetch('/quote/get-live-prices');
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch latest prices from the server.');
-            }
-
-            const prices = await response.json();
-
-            // Update the data attributes on the card for the items section to use
-            card.dataset.goldGramNzd = prices.gold_gram_nzd;
-            card.dataset.silverGramNzd = prices.silver_gram_nzd;
-
-            // Update the price display
-            document.getElementById('gold-oz-price').textContent = Number(prices.gold_ounce_nzd).toFixed(2);
-            document.getElementById('gold-g-price').textContent = Number(prices.gold_gram_nzd).toFixed(2);
-            document.getElementById('silver-oz-price').textContent = Number(prices.silver_ounce_nzd).toFixed(2);
-            document.getElementById('silver-g-price').textContent = Number(prices.silver_gram_nzd).toFixed(2);
-            document.getElementById('last-updated').textContent = new Date().toLocaleString();
-
-            // Trigger a custom event to notify the partial that prices have been updated
-            const event = new CustomEvent('pricesUpdated', { 
-                detail: {
-                    gold_gram_nzd: prices.gold_gram_nzd,
-                    silver_gram_nzd: prices.silver_gram_nzd
-                }
-            });
-            document.dispatchEvent(event);
-
-        } catch (error) {
-            console.error('Error fetching live prices:', error);
-            errorDiv.textContent = 'Error: Could not fetch live prices. Please try again.';
-        } finally {
-            // End loading
-            getLivePriceBtn.disabled = false;
-            spinner.classList.add('d-none');
-        }
     });
 });
 </script>

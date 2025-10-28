@@ -13,12 +13,14 @@ router.get('/', async (req, res) => {
         q.id, 
         q.quote_number, 
         q.customer_first_name, 
-        q.customer_surname, 
+        q.customer_surname,
+        q.customer_mobile,
+        q.customer_email,
         q.created_at,
         STRING_AGG(qi.item_name, ', ') AS items
       FROM quotes q
       LEFT JOIN quote_items qi ON q.id = qi.quote_id
-      GROUP BY q.id
+      GROUP BY q.id, q.customer_mobile, q.customer_email
       ORDER BY q.created_at DESC;
     `;
     const result = await pool.query(query);
