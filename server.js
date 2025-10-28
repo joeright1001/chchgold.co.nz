@@ -10,6 +10,9 @@ const logger = require('./src/utils/logger');
 
 const app = express();
 
+// Trust Railway's proxy for secure cookies and client IP
+app.set('trust proxy', 1);
+
 // Set up templating engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
