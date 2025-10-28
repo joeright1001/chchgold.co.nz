@@ -60,7 +60,9 @@
                 </div>
             </div>
 
-            <%- include('partials/_items_live_price_section', { items: items, quote: quote }) %>
+            <%- include('partials/_live_price_section', { quote: quote }) %>
+            
+            <%- include('partials/_items_section', { items: items, quote: quote }) %>
             
             <div class="mt-4">
                 <button type="submit" class="btn btn-primary">Update Quote</button>

@@ -1,0 +1,54 @@
+<!-- Spot Price Panel -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h2>Spot Price</h2>
+    </div>
+    <div class="card-body">
+        <div class="row spot-price-display">
+            <div class="col-6">
+                <p>1 Troy Oz Gold:</p>
+                <p>1 Troy Oz Silver:</p>
+                <p>1 gram Gold:</p>
+                <p>1 gram Silver:</p>
+                <% 
+                    const lastUpdated = typeof quote !== 'undefined' && quote.updated_at 
+                        ? new Date(quote.updated_at).toLocaleString() 
+                        : 'Not yet loaded';
+                %>
+                <p class="mt-3 last-updated-text"><i>Last Updated: <span id="last-updated"><%= lastUpdated %></span></i></p>
+                <div id="price-error" class="text-danger mt-2"></div>
+                <div class="mt-3">
+                    <% 
+                        const btnId = typeof quote !== 'undefined' && quote.id ? 'refresh-price-btn' : 'get-live-price-btn';
+                    %>
+                    <button type="button" id="<%= btnId %>" class="btn btn-info">
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        Update Live Price
+                    </button>
+                </div>
+            </div>
+            <div class="col-6">
+                <% 
+                    const goldOz = typeof quote !== 'undefined' && quote.spot_price_gold_ounce_nzd 
+                        ? Number(quote.spot_price_gold_ounce_nzd).toFixed(2) 
+                        : '-';
+                    const silverOz = typeof quote !== 'undefined' && quote.spot_price_silver_ounce_nzd 
+                        ? Number(quote.spot_price_silver_ounce_nzd).toFixed(2) 
+                        : '-';
+                    const goldG = typeof quote !== 'undefined' && quote.spot_price_gold_gram_nzd 
+                        ? Number(quote.spot_price_gold_gram_nzd).toFixed(2) 
+                        : '-';
+                    const silverG = typeof quote !== 'undefined' && quote.spot_price_silver_gram_nzd 
+                        ? Number(quote.spot_price_silver_gram_nzd).toFixed(2) 
+                        : '-';
+                %>
+                <p>$<span id="gold-oz-price"><%= goldOz %></span> <span class="currency-unit">NZD</span></p>
+                <p>$<span id="silver-oz-price"><%= silverOz %></span> <span class="currency-unit">NZD</span></p>
+                <p>$<span id="gold-g-price"><%= goldG %></span> <span class="currency-unit">NZD</span></p>
+                <p>$<span id="silver-g-price"><%= silverG %></span> <span class="currency-unit">NZD</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/live_price_management.js"></script>

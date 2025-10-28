@@ -42,7 +42,14 @@
                 </div>
             </div>
 
-            <%- include('partials/_items_live_price_section', {
+            <%- include('partials/_live_price_section', {
+                quote: { 
+                    spot_price_gold_gram_nzd: 0, 
+                    spot_price_silver_gram_nzd: 0 
+                } 
+            }) %>
+            
+            <%- include('partials/_items_section', {
                 items: [], 
                 quote: { 
                     spot_price_gold_gram_nzd: 0, 
