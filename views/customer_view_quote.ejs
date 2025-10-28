@@ -54,6 +54,14 @@
                 rgba(0, 0, 0, 0) 50%);
             z-index: -1;
         }
+        .company-logo {
+            max-height: 80px;
+        }
+        @media (max-width: 576px) {
+            .company-logo {
+                max-height: 50px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -61,7 +69,7 @@
     <div class="container mt-4">
         <div class="mb-4">
             <a href="https://www.christchurchgold.co.nz" target="_blank" rel="noopener noreferrer">
-                <img src="<%= process.env.COMPANY_LOGO_URL_WHITE %>" alt="<%= process.env.COMPANY_NAME %> Logo" style="max-height: 80px;">
+                <img src="<%= process.env.COMPANY_LOGO_URL_WHITE %>" alt="<%= process.env.COMPANY_NAME %> Logo" class="company-logo">
             </a>
         </div>
         <div class="card">
