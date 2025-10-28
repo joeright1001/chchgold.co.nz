@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="col-percent">
                 <label class="form-label">%:</label>
-                <input type="number" class="form-control percent-input" name="items[${rowCounter}][percent]" value="" step="0.01">
+                <input type="number" class="form-control percent-input" name="items[${rowCounter}][percent]" value="" step="0.01" min="0">
             </div>
             <div class="col-weight-type">
                 <label class="form-label">Weight Type:</label>
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="col-weight">
                 <label class="form-label">Weight (g):</label>
-                <input type="number" class="form-control weight-input" name="items[${rowCounter}][weight]" value="" step="any" placeholder="0.0000">
+                <input type="number" class="form-control weight-input" name="items[${rowCounter}][weight]" value="" step="any" placeholder="0.0000" min="0">
             </div>
             <div class="col-live-price">
                 <label>Live Price:</label>
@@ -190,6 +190,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Listen for ALL input/change events that should trigger price updates
     container.addEventListener('input', (e) => {
         if (e.target.matches('.weight-input, .quantity-input, .percent-input')) {
+            const input = e.target;
+            if (input.type === 'number' && input.value !== '') {
+                const value = parseFloat(input.value);
+                const min = parseFloat(input.min);
+
+                if (!isNaN(min) && value < min) {
+                    input.value = min;
+                }
+            }
             updateLivePrices();
         }
     });
@@ -209,5 +218,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize
     updateRemoveButtons();
-    updateLivePrices();
+    updateLivePrices(); // Initial calculation on page load
 });

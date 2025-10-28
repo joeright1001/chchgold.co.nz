@@ -99,7 +99,15 @@ router.get('/:id', async (req, res) => {
 router.post('/:id', async (req, res) => {
   try {
     const { customerDetails, items } = req.body;
-    await quoteService.updateQuoteDetails(req.params.id, customerDetails, items);
+    // Ensure customerDetails is an object, even if the form sends it differently
+    const details = customerDetails || {
+      firstName: req.body['customerDetails[firstName]'],
+      surname: req.body['customerDetails[surname]'],
+      mobile: req.body['customerDetails[mobile]'],
+      email: req.body['customerDetails[email]'],
+      zohoId: req.body['customerDetails[zohoId]'],
+    };
+    await quoteService.updateQuoteDetails(req.params.id, details, items);
     res.redirect(`/admin/${req.params.id}`);
   } catch (error) {
     logger.error(`Error updating quote ${req.params.id}`, { error: error.message });

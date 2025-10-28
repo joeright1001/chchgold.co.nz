@@ -80,7 +80,10 @@
             <%- include('partials/_items_section', { items: items, quote: quote }) %>
             
             <div class="mt-4">
-                <button type="submit" class="btn btn-primary">Update Quote</button>
+                <button type="submit" class="btn btn-primary">
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    Update Quote
+                </button>
             </div>
         </form>
     </div>
@@ -103,7 +106,18 @@ document.addEventListener('DOMContentLoaded', () => {
             copyUrlBtn.textContent = 'Copy';
         }, 2000);
     });
+
+    // Handle form submission spinner
+    const form = document.getElementById('admin-quote-form');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const spinner = submitButton.querySelector('.spinner-border');
+
+    form.addEventListener('submit', () => {
+        spinner.classList.remove('d-none');
+        submitButton.disabled = true;
+    });
 });
 </script>
 
+<script src="/js/items_management.js"></script>
 <%- include('partials/footer') %>
