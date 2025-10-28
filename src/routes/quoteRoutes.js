@@ -39,7 +39,7 @@ router.post('/create', staffAuth, async (req, res) => {
     }
     const filledItems = (items || []).filter(item => item && item.name && item.name.trim() !== '');
     const newQuote = await quoteService.createQuote(customerDetails, filledItems);
-    res.redirect(`/quote/edit/${newQuote.id}`);
+    res.redirect(`/admin/${newQuote.id}?new=true`);
   } catch (error) {
     logger.error('Error in POST /quote/create', { error: error.message });
     res.status(500).json({ error: 'Failed to create quote' });

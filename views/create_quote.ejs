@@ -1,6 +1,7 @@
 <%- include('partials/header', { title: 'Create New Quote' }) %>
 
 <link rel="stylesheet" href="/css/edit_quote.css">
+<script src="/js/contact_validation.js"></script>
 
 <div class="card" id="create-quote-card" data-gold-gram-nzd="0" data-silver-gram-nzd="0">
     <div class="card-header">
@@ -16,21 +17,28 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="firstName" class="form-label">First Name:</label>
-                            <input type="text" class="form-control" id="firstName" name="customerDetails[firstName]" required>
+                            <input type="text" class="form-control" id="firstName" name="customerDetails[firstName]">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="surname" class="form-label">Surname:</label>
-                            <input type="text" class="form-control" id="surname" name="customerDetails[surname]" required>
+                            <input type="text" class="form-control" id="surname" name="customerDetails[surname]">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="mobile" class="form-label">Mobile:</label>
-                            <input type="text" class="form-control" id="mobile" name="customerDetails[mobile]" required>
+                            <label for="mobile" class="form-label">Mobile: <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="mobile" name="customerDetails[mobile]">
+                            <div class="invalid-feedback" id="mobile-error"></div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="email" class="form-label">Email:</label>
+                            <label for="email" class="form-label">Email: <span class="text-danger">*</span></label>
                             <input type="email" class="form-control" id="email" name="customerDetails[email]">
+                            <div class="invalid-feedback" id="email-error"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <small class="text-muted">* At least one of Mobile or Email is required</small>
                         </div>
                     </div>
                     <div class="row">
@@ -72,11 +80,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('create-quote-form');
     const createQuoteBtn = document.getElementById('create-quote-btn');
 
+    // Initialize shared contact validation
+    initContactValidation('create-quote-form');
+
     // Handle form submission spinner
-    form.addEventListener('submit', () => {
-        const spinner = createQuoteBtn.querySelector('.spinner-border');
-        createQuoteBtn.disabled = true;
-        spinner.classList.remove('d-none');
+    form.addEventListener('submit', (e) => {
+        const mobile = document.getElementById('mobile').value.trim();
+        const email = document.getElementById('email').value.trim();
+        
+        // Only show spinner if validation passes
+        if (mobile || email) {
+            const spinner = createQuoteBtn.querySelector('.spinner-border');
+            createQuoteBtn.disabled = true;
+            spinner.classList.remove('d-none');
+        }
     });
 });
 </script>

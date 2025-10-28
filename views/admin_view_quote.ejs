@@ -1,8 +1,16 @@
 <%- include('partials/header', { title: `Edit Quote - ${quote.quote_number}` }) %>
 
 <link rel="stylesheet" href="/css/edit_quote.css">
+<script src="/js/contact_validation.js"></script>
 
-<div class="card" id="edit-quote-card" 
+<% if (isNewQuote) { %>
+<div class="alert alert-success alert-dismissible fade show" role="alert" id="new-quote-banner">
+    <strong>New Sell Bullion Quote Created</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<% } %>
+
+<div class="card" id="edit-quote-card"
     data-quote-id="<%= quote.id %>" 
     data-gold-gram-nzd="<%= Number(quote.spot_price_gold_gram_nzd) || 0 %>" 
     data-silver-gram-nzd="<%= Number(quote.spot_price_silver_gram_nzd) || 0 %>">
@@ -11,7 +19,7 @@
         <a href="/admin" class="btn btn-secondary">Back to Dashboard</a>
     </div>
     <div class="card-body">
-        <form action="/admin/<%= quote.id %>" method="POST">
+        <form action="/admin/<%= quote.id %>" method="POST" id="admin-quote-form">
             <!-- Editable Customer Details -->
             <div class="card mb-4">
                 <div class="card-header">
@@ -21,21 +29,28 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="firstName" class="form-label">First Name:</label>
-                            <input type="text" class="form-control" id="firstName" name="customerDetails[firstName]" value="<%= quote.customer_first_name %>" required>
+                            <input type="text" class="form-control" id="firstName" name="customerDetails[firstName]" value="<%= quote.customer_first_name %>">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="surname" class="form-label">Surname:</label>
-                            <input type="text" class="form-control" id="surname" name="customerDetails[surname]" value="<%= quote.customer_surname %>" required>
+                            <input type="text" class="form-control" id="surname" name="customerDetails[surname]" value="<%= quote.customer_surname %>">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="mobile" class="form-label">Mobile:</label>
-                            <input type="text" class="form-control" id="mobile" name="customerDetails[mobile]" value="<%= quote.customer_mobile %>" required>
+                            <label for="mobile" class="form-label">Mobile: <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="mobile" name="customerDetails[mobile]" value="<%= quote.customer_mobile %>">
+                            <div class="invalid-feedback" id="mobile-error"></div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="email" class="form-label">Email:</label>
+                            <label for="email" class="form-label">Email: <span class="text-danger">*</span></label>
                             <input type="email" class="form-control" id="email" name="customerDetails[email]" value="<%= quote.customer_email %>">
+                            <div class="invalid-feedback" id="email-error"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <small class="text-muted">* At least one of Mobile or Email is required</small>
                         </div>
                     </div>
                     <div class="row">
@@ -75,6 +90,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const copyUrlBtn = document.getElementById('copy-url-btn');
     const customerUrlInput = document.getElementById('customer-url');
+
+    // Initialize shared contact validation
+    initContactValidation('admin-quote-form');
 
     // Handle copy URL button
     copyUrlBtn.addEventListener('click', () => {

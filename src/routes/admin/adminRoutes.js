@@ -79,10 +79,15 @@ router.get('/:id', async (req, res) => {
     // Force HTTPS in production
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
     const customerUrl = `${protocol}://${req.get('host')}/quote/${quoteData.quote.short_id}`;
+    
+    // Check if this is a newly created quote
+    const isNewQuote = req.query.new === 'true';
+    
     res.render('admin_view_quote', {
       quote: quoteData.quote,
       items: quoteData.items,
       customerUrl: customerUrl,
+      isNewQuote: isNewQuote,
     });
   } catch (error) {
     logger.error(`Error fetching quote for admin view (ID: ${req.params.id})`, { error: error.message });
