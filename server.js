@@ -4,6 +4,8 @@ process.env.TZ = 'Pacific/Auckland';
 const express = require("express");
 const path = require('path');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
+const { pool } = require('./src/config/database');
 const logger = require('./src/utils/logger');
 
 const app = express();
@@ -17,12 +19,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Session middleware for customer authentication
+// Session middleware for customer authentication with PostgreSQL store
 app.use(session({
+  store: new pgSession({
+    pool: pool,                   // Connection pool
+    tableName: 'session',         // Table name (matches schema.sql)
+    createTableIfMissing: false   // Table already created in schema.sql
+  }),
   secret: process.env.SESSION_SECRET || 'a_default_secret_for_development',
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: process.env.NODE_ENV === 'production' } // Use secure cookies in production
+  saveUninitialized: false,       // Changed to false to prevent storing empty sessions
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production
+    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+  }
 }));
 
 // Import routes

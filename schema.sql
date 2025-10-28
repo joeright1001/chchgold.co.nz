@@ -63,6 +63,18 @@ CREATE TABLE settings (
 -- Initialize the spot normalisation offset setting (default 0.25%)
 INSERT INTO settings (key, value) VALUES ('spot_normalisation_offset', '0.25');
 
+-- Create the session table for connect-pg-simple
+CREATE TABLE "session" (
+  "sid" varchar NOT NULL COLLATE "default",
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL
+)
+WITH (OIDS=FALSE);
+
+ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+CREATE INDEX "IDX_session_expire" ON "session" ("expire");
+
 -- Add indexes for performance
 CREATE INDEX idx_quotes_customer_mobile ON quotes(customer_mobile);
 CREATE INDEX idx_quote_items_quote_id ON quote_items(quote_id);
