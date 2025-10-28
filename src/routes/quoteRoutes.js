@@ -113,7 +113,14 @@ router.post('/:shortId/login', async (req, res) => {
 
     if (isValid) {
       req.session.authenticatedQuoteId = shortId; // Store short_id in session
-      res.redirect(`/quote/${shortId}`);
+      // Save session before redirect to ensure it's persisted
+      req.session.save((err) => {
+        if (err) {
+          logger.error(`Error saving session for quote ${shortId}`, { error: err.message });
+          return res.status(500).send('Session error during login.');
+        }
+        res.redirect(`/quote/${shortId}`);
+      });
     } else {
       res.render('customer_login', { 
         quoteId: shortId, 
