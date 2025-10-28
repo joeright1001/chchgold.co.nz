@@ -77,7 +77,9 @@ router.get('/edit/:id', staffAuth, async (req, res) => {
       return res.status(404).send('Quote not found');
     }
     // Use short_id for customer URL (much shorter and easier)
-    const customerUrl = `${req.protocol}://${req.get('host')}/quote/${quoteData.quote.short_id}`;
+    // Force HTTPS in production
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
+    const customerUrl = `${protocol}://${req.get('host')}/quote/${quoteData.quote.short_id}`;
     res.render('edit_quote', {
       quote: quoteData.quote,
       items: quoteData.items,
