@@ -4,5 +4,7 @@ nixPkgs = ["nodejs_20"]
 [phases.install]
 cmds = ["npm ci --omit=dev"]
 
+[phases.build]
+
 [start]
 cmd = "npm start"
