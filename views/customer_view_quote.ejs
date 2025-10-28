@@ -6,34 +6,99 @@
     <title>Your Bullion Quote - <%= quote.quote_number %></title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            position: relative;
+            min-height: 100vh;
+            background-color: #000000;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('<%= process.env.CUSTOMER_QUOTE_BACKGROUND %>');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -3;
+        }
+        
+        /* 20% black filter over entire image */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: -2;
+        }
+        
+        /* Black gradient overlay fading from left to right */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to right, 
+                rgba(0, 0, 0, 1) 0%, 
+                rgba(0, 0, 0, 0.9) 20%,
+                rgba(0, 0, 0, 0.7) 30%,
+                rgba(0, 0, 0, 0.3) 40%, 
+                rgba(0, 0, 0, 0) 50%);
+            z-index: -1;
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
+    <div class="bg-overlay"></div>
     <div class="container mt-4">
-        <div class="text-center mb-4">
-            <img src="<%= process.env.COMPANY_LOGO_URL %>" alt="<%= process.env.COMPANY_NAME %> Logo" style="max-height: 80px;">
+        <div class="mb-4">
+            <a href="https://www.christchurchgold.co.nz" target="_blank" rel="noopener noreferrer">
+                <img src="<%= process.env.COMPANY_LOGO_URL_WHITE %>" alt="<%= process.env.COMPANY_NAME %> Logo" style="max-height: 80px;">
+            </a>
         </div>
         <div class="card">
-            <div class="card-header text-center">
-                <h1>Sell Your Bullion Quote</h1>
-                <h2><%= quote.quote_number %></h2>
+            <div class="card-header">
+                <h1 class="text-start mb-0">Sell Your Bullion Quote: <%= quote.quote_number %></h1>
             </div>
             <div class="card-body">
+                <div class="border rounded p-3 mb-4">
+                    <p class="mb-0">Simple, fast and a great rate. Please note: these prices are indicative and subject to verification or market changes. We aim to be as competitive as possible for the NZ market and are happy to discuss rates and volume trades. There are some constraints with cash and a handling fee may apply.</p>
+                </div>
+                
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h2>Quote Details</h2>
+                        <h2>Spot Price</h2>
                     </div>
                     <div class="card-body">
-                        <p><strong>Gold (oz):</strong> $<%= Number(quote.spot_price_gold_ounce_nzd).toFixed(2) %></p>
-                        <p><strong>Gold (g):</strong> $<%= Number(quote.spot_price_gold_gram_nzd).toFixed(2) %></p>
-                        <p><strong>Silver (oz):</strong> $<%= Number(quote.spot_price_silver_ounce_nzd).toFixed(2) %></p>
-                        <p><strong>Silver (g):</strong> $<%= Number(quote.spot_price_silver_gram_nzd).toFixed(2) %></p>
-                        <p><i>Quote valid as of: <%= new Date(quote.updated_at).toLocaleString() %></i></p>
+                        <p class="mb-4"><i>Prices are based on current market data. We update rates continually which may result in an increase or decrease in the quote. Price Updated: <%= new Date(quote.updated_at).toLocaleString() %>: <a href="https://www.ice.com/iba/lbma-gold-silver-price" target="_blank" rel="noopener noreferrer">(LBMA)</a></i></p>
+                        <div class="row">
+                            <div class="col-6">
+                                <p class="mb-4">1 Troy Oz Gold:</p>
+                                <p class="mb-4">1 Troy Oz Silver:</p>
+                                <p class="mb-4">1 gram Gold:</p>
+                                <p class="mb-4">1 gram Silver:</p>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-4">$<%= Number(quote.spot_price_gold_ounce_nzd).toFixed(2) %> NZD</p>
+                                <p class="mb-4">$<%= Number(quote.spot_price_silver_ounce_nzd).toFixed(2) %> NZD</p>
+                                <p class="mb-4">$<%= Number(quote.spot_price_gold_gram_nzd).toFixed(2) %> NZD</p>
+                                <p class="mb-4">$<%= Number(quote.spot_price_silver_gram_nzd).toFixed(2) %> NZD</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">
-                        <h3>Items</h3>
+                        <h3>Bullion Items</h3>
                     </div>
                     <div class="card-body">
                         <table class="table">
@@ -41,19 +106,42 @@
                                 <tr>
                                     <th>Item Name</th>
                                     <th>Metal Type</th>
-                                    <th>Percent</th>
+                                    <th>Qty</th>
                                     <th>Weight (g)</th>
+                                    <th>Total</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <% items.forEach(item => { %>
+                                <% 
+                                let grandTotal = 0;
+                                items.forEach(item => { 
+                                    // Calculate row total based on metal type, weight, and percent
+                                    const weight = Number(item.weight);
+                                    const percent = Number(item.percent);
+                                    const pureWeight = (weight * percent) / 100;
+                                    const quantity = item.quantity || 1;
+                                    
+                                    let rowTotal = 0;
+                                    if (item.metal_type === 'Gold') {
+                                        rowTotal = pureWeight * Number(quote.spot_price_gold_gram_nzd);
+                                    } else if (item.metal_type === 'Silver') {
+                                        rowTotal = pureWeight * Number(quote.spot_price_silver_gram_nzd);
+                                    }
+                                    
+                                    grandTotal += rowTotal;
+                                %>
                                     <tr>
                                         <td><%= item.item_name %></td>
                                         <td><%= item.metal_type %></td>
-                                        <td><%= item.percent %> %</td>
+                                        <td><%= quantity %></td>
                                         <td><%= item.weight %> g</td>
+                                        <td>$<%= rowTotal.toFixed(2) %></td>
                                     </tr>
                                 <% }); %>
+                                <tr class="fw-bold" style="border-top: 1px solid #dee2e6;">
+                                    <td colspan="4" class="text-end" style="padding-top: 40px;">Grand Total:</td>
+                                    <td style="padding-top: 40px;">$<%= grandTotal.toFixed(2) %></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -61,11 +149,93 @@
                 
                 <div class="card mt-4">
                     <div class="card-header">
-                        <h2>Next Steps</h2>
+                        <h2>Options</h2>
                     </div>
                     <div class="card-body">
-                        <p>Please contact us to proceed with this quote.</p>
-                        <p><%= process.env.COMPANY_CONTACT %></p>
+                        <div class="row">
+                            <div class="col-md-4 text-start">
+                                <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
+                                    <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
+                                    <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">1</text>
+                                </svg>
+                                <p class="mb-0"><strong>Make a time to trade face to face or discuss any questions.</strong> Our premises is convenient, light, friendly and secure. You will be our only client. Cash and bank transfer are available on the day.</p>
+                            </div>
+                            <div class="col-md-4 text-start">
+                                <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
+                                    <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
+                                    <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">2</text>
+                                </svg>
+                                <p class="mb-0"><strong>Post it.</strong> We will send you a secure, free, insured courier package. Note: limited to $20,000 in value.</p>
+                            </div>
+                            <div class="col-md-4 text-start">
+                                <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
+                                    <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
+                                    <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">3</text>
+                                </svg>
+                                <p class="mb-0"><strong>Mobility constraints?</strong> We are happy to work with clients to find a solution that fits.</p>
+                            </div>
+                        </div>
+                        <div class="row mb-4" style="margin-top: 30px;">
+                            <div class="col-md-4 text-start">
+                                <a href="https://christchurchgold.webflow.io/contact-us" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Book Time</a>
+                            </div>
+                            <div class="col-md-4 text-start">
+                                <a href="https://christchurchgold.webflow.io/sell-gold" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Post It</a>
+                            </div>
+                            <div class="col-md-4 text-start d-flex align-items-center">
+                                <a href="tel:0392257715" style="text-decoration: none; color: inherit;">(03) 925 7715</a>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h5 class="mb-3">Contact Us</h5>
+                        <p class="mb-2"><strong>Phone:</strong> (03) 925 7715</p>
+                        <p class="mb-2"><strong>Mobile:</strong> 021 245 1178</p>
+                        <p class="mb-2"><strong>Private Telegram:</strong> <a href="https://t.me/m/UeYxKnaqYzMx" target="_blank" rel="noopener noreferrer">link</a></p>
+                        <p class="mb-2"><strong>Email:</strong> <a href="mailto:sales@christchurchgold.co.nz">sales@christchurchgold.co.nz</a></p>
+                        <p class="mb-0"><strong>Book Appt:</strong> <a href="https://www.christchurchgold.co.nz/contact-us" target="_blank" rel="noopener noreferrer">link</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-top: 60px; margin-bottom: 60px;">
+            <div class="card-header">
+                <h1 class="text-start mb-0">Need to Know:</h1>
+            </div>
+            <div class="card-body">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2>Our Buying Process</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">Christchurch Gold buys precious metals, regardless of where they were purchased.</p>
+                        <p class="mb-3">Here is the process, which we aim to make as simple as possible:</p>
+                        <p class="mb-2">Simply call or email us with details of what you would like to sell.</p>
+                        <p class="mb-2">We'll give you a price indication of what Christchurch Gold can offer, either as a percentage below spot or as a NZD value.</p>
+                        <p class="mb-2">You may wish to obtain another quote elsewhere – always come back to us before you make your final decision to sell.</p>
+                        <p class="mb-2">If you decide to go ahead, we'll need to see the coins or bars. You can either make an appointment to come into our office personally or we will send a courier bag so you can return the metal, at our cost, fully insured.</p>
+                        <p class="mb-2">Once we physically check the coins or bars for purity, we will give you a firm price based on the spot price at that moment. This will be the contract price if you agree to sell.</p>
+                        <p class="mb-0">Payment will be made to your nominated bank account within 2-24 hours.</p>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2>What We Buy</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">We purchase gold and silver bullion coins, bars, and rounds from any reputable mint or refinery. Items must be in good condition with verifiable purity.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Payment Terms</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">All payments are made via direct bank transfer to your nominated New Zealand bank account. Payments are typically processed within 2-24 hours of agreement.</p>
                     </div>
                 </div>
             </div>
