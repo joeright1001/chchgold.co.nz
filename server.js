@@ -31,6 +31,8 @@ app.use(session({
   saveUninitialized: false,       // Changed to false to prevent storing empty sessions
   cookie: { 
     secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production
+    httpOnly: true,
+    sameSite: 'lax',  // Allow cookies to be sent on same-site navigations and top-level navigations
     maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
   }
 }));
