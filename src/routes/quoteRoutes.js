@@ -76,7 +76,8 @@ router.get('/edit/:id', staffAuth, async (req, res) => {
     if (!quoteData) {
       return res.status(404).send('Quote not found');
     }
-    const customerUrl = `${req.protocol}://${req.get('host')}/quote/${quoteData.quote.id}`;
+    // Use short_id for customer URL (much shorter and easier)
+    const customerUrl = `${req.protocol}://${req.get('host')}/quote/${quoteData.quote.short_id}`;
     res.render('edit_quote', {
       quote: quoteData.quote,
       items: quoteData.items,
@@ -88,44 +89,54 @@ router.get('/edit/:id', staffAuth, async (req, res) => {
   }
 });
 
-// CUSTOMER ROUTE: Renders the login page for a specific quote.
-router.get('/:id/login', (req, res) => {
-  res.render('customer_login', { quoteId: req.params.id, error: null });
+// CUSTOMER ROUTE: Renders the login page for a specific quote (using short_id).
+router.get('/:shortId/login', (req, res) => {
+  res.render('customer_login', { quoteId: req.params.shortId, error: null });
 });
 
-// CUSTOMER ROUTE: Handles the login attempt.
-router.post('/:id/login', async (req, res) => {
+// CUSTOMER ROUTE: Handles the login attempt (using short_id).
+router.post('/:shortId/login', async (req, res) => {
   try {
-    const { id } = req.params;
+    const { shortId } = req.params;
     const { credential } = req.body;
-    const isValid = await quoteService.validateCustomerCredential(id, credential);
+    
+    // Get quote by short_id first to get the UUID
+    const quoteData = await quoteService.getQuoteByShortId(shortId);
+    if (!quoteData) {
+      return res.render('customer_login', { 
+        quoteId: shortId, 
+        error: 'Quote not found.' 
+      });
+    }
+    
+    const isValid = await quoteService.validateCustomerCredential(quoteData.quote.id, credential);
 
     if (isValid) {
-      req.session.authenticatedQuoteId = id;
-      res.redirect(`/quote/${id}`);
+      req.session.authenticatedQuoteId = shortId; // Store short_id in session
+      res.redirect(`/quote/${shortId}`);
     } else {
       res.render('customer_login', { 
-        quoteId: id, 
+        quoteId: shortId, 
         error: 'Invalid mobile number or email. Please try again.' 
       });
     }
   } catch (error) {
-    logger.error(`Error during customer login for quote ${req.params.id}`, { error: error.message });
+    logger.error(`Error during customer login for quote ${req.params.shortId}`, { error: error.message });
     res.status(500).send('Server error during login.');
   }
 });
 
-// CUSTOMER ROUTE: The customer-facing view of the quote.
+// CUSTOMER ROUTE: The customer-facing view of the quote (using short_id).
 // This dynamic route is last, so it won't incorrectly match '/create' or '/edit'.
-router.get('/:id', async (req, res) => {
+router.get('/:shortId', async (req, res) => {
   try {
-    const { id } = req.params;
+    const { shortId } = req.params;
     // Check if the user is authenticated for this specific quote
-    if (req.session.authenticatedQuoteId !== id) {
-      return res.redirect(`/quote/${id}/login`);
+    if (req.session.authenticatedQuoteId !== shortId) {
+      return res.redirect(`/quote/${shortId}/login`);
     }
 
-    const quoteData = await quoteService.getQuoteById(id);
+    const quoteData = await quoteService.getQuoteByShortId(shortId);
     if (!quoteData) {
       return res.status(404).send('Quote not found');
     }
@@ -134,7 +145,7 @@ router.get('/:id', async (req, res) => {
       items: quoteData.items,
     });
   } catch (error) {
-    logger.error(`Error fetching quote for customer view (ID: ${req.params.id})`, { error: error.message });
+    logger.error(`Error fetching quote for customer view (short_id: ${req.params.shortId})`, { error: error.message });
     res.status(500).send('Server error');
   }
 });

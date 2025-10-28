@@ -1,6 +1,7 @@
 -- Create the quotes table
 CREATE TABLE quotes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    short_id VARCHAR(8) UNIQUE NOT NULL,
     quote_number VARCHAR(255) UNIQUE NOT NULL,
     customer_first_name VARCHAR(255),
     customer_surname VARCHAR(255),

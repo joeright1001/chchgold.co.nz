@@ -1,6 +1,32 @@
 const pool = require('../config/database');
 const logger = require('../utils/logger');
 
+// Generate a short, URL-friendly ID (8 characters: alphanumeric)
+function generateShortId() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let shortId = '';
+    for (let i = 0; i < 8; i++) {
+        shortId += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return shortId;
+}
+
+// Ensure short_id is unique by checking database
+async function ensureUniqueShortId() {
+    let shortId;
+    let isUnique = false;
+    
+    while (!isUnique) {
+        shortId = generateShortId();
+        const result = await pool.query('SELECT id FROM quotes WHERE short_id = $1', [shortId]);
+        if (result.rows.length === 0) {
+            isUnique = true;
+        }
+    }
+    
+    return shortId;
+}
+
 /**
  * Generates the next sequential quote number (e.g., SBQ-000284).
  * This function uses a transaction to ensure the sequence is updated atomically.
@@ -43,7 +69,10 @@ async function createQuote(customerDetails, items) {
   try {
     await client.query('BEGIN');
 
-    // 1. Get the next quote number
+    // 1. Generate unique short ID
+    const shortId = await ensureUniqueShortId();
+
+    // 2. Get the next quote number
     const quoteNumberResult = await client.query(
       "UPDATE sequences SET value = value + 1 WHERE name = 'quote_number' RETURNING value"
     );
@@ -53,10 +82,10 @@ async function createQuote(customerDetails, items) {
     const nextValue = quoteNumberResult.rows[0].value;
     const quoteNumber = `SBQ-${String(nextValue).padStart(6, '0')}`;
 
-    // 2. Get current spot prices (per gram)
+    // 3. Get current spot prices (per gram)
     const gramPrices = await getSpotPrices();
 
-    // 3. Calculate ounce prices
+    // 4. Calculate ounce prices
     const spotPrices = {
       gold_gram_nzd: gramPrices.gold_gram_nzd,
       silver_gram_nzd: gramPrices.silver_gram_nzd,
@@ -64,20 +93,21 @@ async function createQuote(customerDetails, items) {
       silver_ounce_nzd: gramPrices.silver_gram_nzd * TROY_OUNCE_IN_GRAMS,
     };
 
-    // 4. TODO: Calculate totals based on items and spot prices
+    // 5. TODO: Calculate totals based on items and spot prices
     const totals = { grandTotal: 0 }; // Placeholder for calculation logic
 
-    // 4. Insert the main quote record
+    // 6. Insert the main quote record
     const quoteInsertQuery = `
       INSERT INTO quotes (
-        quote_number, customer_first_name, customer_surname, customer_mobile, customer_email, zoho_id, 
+        short_id, quote_number, customer_first_name, customer_surname, customer_mobile, customer_email, zoho_id, 
         spot_price_gold_gram_nzd, spot_price_silver_gram_nzd, spot_price_gold_ounce_nzd, spot_price_silver_ounce_nzd, 
         totals
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *;
     `;
     const quoteValues = [
+      shortId,
       quoteNumber,
       customerDetails.firstName,
       customerDetails.surname,
@@ -93,7 +123,7 @@ async function createQuote(customerDetails, items) {
     const quoteResult = await client.query(quoteInsertQuery, quoteValues);
     const newQuote = quoteResult.rows[0];
 
-    // 5. Insert each quote item
+    // 7. Insert each quote item
     if (items && items.length > 0) {
       const itemInsertQuery = `
         INSERT INTO quote_items (quote_id, item_name, metal_type, percent, weight, weight_type, quantity)
@@ -141,6 +171,37 @@ async function getQuoteById(id) {
     };
   } catch (error) {
     logger.error(`Error fetching quote by id ${id}`, { error });
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Retrieves a single quote and its items by the quote's short_id.
+ * @param {string} shortId - The short_id of the quote (8 characters).
+ * @returns {Promise<{quote: object, items: Array<object>}>} The quote and its items.
+ */
+async function getQuoteByShortId(shortId) {
+  const client = await pool.connect();
+  try {
+    const quoteQuery = 'SELECT * FROM quotes WHERE short_id = $1';
+    const quoteResult = await client.query(quoteQuery, [shortId]);
+
+    if (quoteResult.rows.length === 0) {
+      return null;
+    }
+
+    const quote = quoteResult.rows[0];
+    const itemsQuery = 'SELECT * FROM quote_items WHERE quote_id = $1';
+    const itemsResult = await client.query(itemsQuery, [quote.id]);
+
+    return {
+      quote: quote,
+      items: itemsResult.rows,
+    };
+  } catch (error) {
+    logger.error(`Error fetching quote by short_id ${shortId}`, { error });
     throw error;
   } finally {
     client.release();
@@ -328,8 +389,10 @@ module.exports = {
   getNextQuoteNumber,
   createQuote,
   getQuoteById,
+  getQuoteByShortId,
   updateQuotePrices,
   updateQuoteItems,
   validateCustomerCredential,
   updateQuoteDetails,
+  ensureUniqueShortId, // Export for migration script
 };

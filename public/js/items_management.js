@@ -126,13 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     <option value="10">10g</option>
                     <option value="20">20g</option>
                     <option value="50">50g</option>
-                    <option value="1.41748">1/20 oz</option>
-                    <option value="2.83495">1/10 oz</option>
-                    <option value="14.17476">1/2 oz</option>
-                    <option value="28.34952">1 oz</option>
-                    <option value="56.69904">2 oz</option>
-                    <option value="141.7476">5 oz</option>
-                    <option value="283.4952">10 oz</option>
+                    <option value="1.555175">1/20 oz</option>
+                    <option value="3.11035">1/10 oz</option>
+                    <option value="15.55175">1/2 oz</option>
+                    <option value="31.1035">1 oz</option>
+                    <option value="62.207">2 oz</option>
+                    <option value="155.5175">5 oz</option>
+                    <option value="311.035">10 oz</option>
                     <option value="1000">1 Kgs</option>
                 </select>
             </div>

@@ -75,7 +75,8 @@ router.get('/:id', async (req, res) => {
     if (!quoteData) {
       return res.status(404).send('Quote not found');
     }
-    const customerUrl = `${req.protocol}://${req.get('host')}/quote/${quoteData.quote.id}`;
+    // Use short_id for customer URL (much shorter and easier)
+    const customerUrl = `${req.protocol}://${req.get('host')}/quote/${quoteData.quote.short_id}`;
     res.render('admin_view_quote', {
       quote: quoteData.quote,
       items: quoteData.items,
