@@ -107,12 +107,28 @@
                                     <th>Item Name</th>
                                     <th>Metal Type</th>
                                     <th>Qty</th>
-                                    <th>Weight (g)</th>
+                                    <th>Weight</th>
                                     <th>Total</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <% 
+                                const weightTypeMap = {
+                                    "1": "1g",
+                                    "5": "5g",
+                                    "10": "10g",
+                                    "20": "20g",
+                                    "50": "50g",
+                                    "1.555175": "1/20 oz",
+                                    "3.11035": "1/10 oz",
+                                    "15.55175": "1/2 oz",
+                                    "31.1035": "1 oz",
+                                    "62.207": "2 oz",
+                                    "155.5175": "5 oz",
+                                    "311.035": "10 oz",
+                                    "1000": "1 Kgs"
+                                };
+
                                 let grandTotal = 0;
                                 items.forEach(item => { 
                                     // Calculate row total based on metal type, weight, and percent
@@ -134,7 +150,7 @@
                                         <td><%= item.item_name %></td>
                                         <td><%= item.metal_type %></td>
                                         <td><%= quantity %></td>
-                                        <td><%= item.weight %> g</td>
+                                        <td><%= weightTypeMap[item.weight_type] || item.weight + ' g' %></td>
                                         <td>$<%= rowTotal.toFixed(2) %></td>
                                     </tr>
                                 <% }); %>
@@ -153,36 +169,28 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-4 text-start">
+                            <div class="col-md-4 text-start mb-4">
                                 <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
                                     <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
                                     <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">1</text>
                                 </svg>
-                                <p class="mb-0"><strong>Make a time to trade face to face or discuss any questions.</strong> Our premises is convenient, light, friendly and secure. You will be our only client. Cash and bank transfer are available on the day.</p>
+                                <p class="mb-3"><strong>Make a time to trade face to face or discuss any questions.</strong> Our premises is convenient, light, friendly and secure. You will be our only client. Cash and bank transfer are available on the day.</p>
+                                <a href="https://christchurchgold.webflow.io/contact-us" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Book Time</a>
                             </div>
-                            <div class="col-md-4 text-start">
+                            <div class="col-md-4 text-start mb-4">
                                 <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
                                     <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
                                     <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">2</text>
                                 </svg>
-                                <p class="mb-0"><strong>Post it.</strong> We will send you a secure, free, insured courier package. Note: limited to $20,000 in value.</p>
+                                <p class="mb-3"><strong>Post it.</strong> We will send you a secure, free, insured courier package. Note: limited to $20,000 in value.</p>
+                                <a href="https://christchurchgold.webflow.io/sell-gold" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Post It</a>
                             </div>
-                            <div class="col-md-4 text-start">
+                            <div class="col-md-4 text-start mb-4">
                                 <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
                                     <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
                                     <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">3</text>
                                 </svg>
-                                <p class="mb-0"><strong>Mobility constraints?</strong> We are happy to work with clients to find a solution that fits.</p>
-                            </div>
-                        </div>
-                        <div class="row mb-4" style="margin-top: 30px;">
-                            <div class="col-md-4 text-start">
-                                <a href="https://christchurchgold.webflow.io/contact-us" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Book Time</a>
-                            </div>
-                            <div class="col-md-4 text-start">
-                                <a href="https://christchurchgold.webflow.io/sell-gold" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Post It</a>
-                            </div>
-                            <div class="col-md-4 text-start d-flex align-items-center">
+                                <p class="mb-3"><strong>Mobility constraints?</strong> We are happy to work with clients to find a solution that fits.</p>
                                 <a href="tel:0392257715" style="text-decoration: none; color: inherit;">(03) 925 7715</a>
                             </div>
                         </div>
