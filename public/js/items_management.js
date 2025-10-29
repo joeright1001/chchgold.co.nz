@@ -3,8 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.getElementById('edit-quote-card') || document.getElementById('create-quote-card');
     const container = document.getElementById('items-container');
     const addBtn = document.getElementById('add-item-btn');
-    const updatePriceBtn = document.getElementById('refresh-price-btn') || document.getElementById('get-live-price-btn');
-    const errorDiv = document.getElementById('price-error');
     
     if (!card || !container || !addBtn) return;
     
@@ -166,46 +164,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle weight type dropdown selection
     container.addEventListener('change', (e) => {
-        if (e.target.classList.contains('weight-type-select')) {
-            const row = e.target.closest('.item-row');
+        const target = e.target;
+        
+        // Check if it's a weight type dropdown
+        if (target && target.classList && target.classList.contains('weight-type-select')) {
+            const row = target.closest('.item-row');
             const weightInput = row.querySelector('.weight-input');
             const hiddenWeightType = row.querySelector('.weight-type-hidden');
-            const selectedValue = e.target.value;
+            const value = target.value;
             
-            hiddenWeightType.value = selectedValue;
+            // Update hidden field
+            hiddenWeightType.value = value;
             
-            if (selectedValue) {
-                weightInput.value = parseFloat(selectedValue).toFixed(5);
-                // Immediately trigger calculation
-                updateLivePrices();
+            // Update weight input
+            if (value !== '') {
+                weightInput.value = parseFloat(value).toFixed(5);
+            } else {
+                weightInput.value = '';
             }
+            
+            // Update prices
+            updateLivePrices();
         }
         
-        // Also trigger on metal type or any other select changes
-        if (e.target.matches('.metal-type-select')) {
+        // Handle metal type changes
+        if (target && target.classList && target.classList.contains('metal-type-select')) {
             updateLivePrices();
         }
     });
 
-    // Listen for ALL input/change events that should trigger price updates
+    // Listen for input changes
     container.addEventListener('input', (e) => {
-        if (e.target.matches('.weight-input, .quantity-input, .percent-input')) {
-            const input = e.target;
-            if (input.type === 'number' && input.value !== '') {
-                const value = parseFloat(input.value);
-                const min = parseFloat(input.min);
-
+        const target = e.target;
+        if (target && target.matches && target.matches('.weight-input, .quantity-input, .percent-input')) {
+            if (target.type === 'number' && target.value !== '') {
+                const value = parseFloat(target.value);
+                const min = parseFloat(target.min);
                 if (!isNaN(min) && value < min) {
-                    input.value = min;
+                    target.value = min;
                 }
             }
-            updateLivePrices();
-        }
-    });
-    
-    // Also listen for keyup to catch all changes immediately
-    container.addEventListener('keyup', (e) => {
-        if (e.target.matches('.weight-input, .quantity-input, .percent-input')) {
             updateLivePrices();
         }
     });
@@ -218,5 +216,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize
     updateRemoveButtons();
-    updateLivePrices(); // Initial calculation on page load
+    updateLivePrices();
 });
