@@ -62,6 +62,43 @@
                 max-height: 50px;
             }
         }
+
+        /* Professional List with SVG bullets */
+        .professional-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .professional-list li {
+            padding-left: 3rem;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .professional-list li::before {
+            content: '';
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            background-size: contain;
+            background-repeat: no-repeat;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .professional-list .item-professional::before {
+            background-image: url('/svg/professional.svg');
+        }
+
+        .professional-list .item-private::before {
+            background-image: url('/svg/private.svg');
+        }
+
+        .professional-list .item-local::before {
+            background-image: url('/svg/local.svg');
+        }
     </style>
 </head>
 <body>
@@ -74,41 +111,47 @@
         </div>
         <div class="card">
             <div class="card-header">
-                <h1 class="text-start mb-0">Sell Your Bullion Quote: <%= quote.quote_number %></h1>
+                <h1 class="text-start mb-0">Bullion Quote: <%= quote.quote_number %></h1>
             </div>
             <div class="card-body">
                 <div class="border rounded p-3 mb-4">
-                    <p class="mb-0">Simple, fast and a great rate. Please note: these prices are indicative and subject to verification or market changes. We aim to be as competitive as possible for the NZ market and are happy to discuss rates and volume trades. There are some constraints with cash and a handling fee may apply.</p>
+                     <blockquote class="mb-4" style="font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
+                            Sell Your Gold & Silver easily, quickly and at a great rate.
+                        </blockquote>
+                    
+                    <p class="mb-0">Cash & Bank transfer options, secure premises in Hornby or free post from anywhere in NZ.</p>
                 </div>
                 
-                <div class="card mb-4">
+                <div class="card mb-4" style="margin-top: 40px">
                     <div class="card-header">
-                        <h2>Spot Price</h2>
+                        <h2>Market Price</h2>
                     </div>
                     <div class="card-body">
-                        <p class="mb-4"><i>Prices are based on current market data. We update rates continually which may result in an increase or decrease in the quote. Price Updated: <%= new Date(quote.updated_at).toLocaleString() %>: <a href="https://www.ice.com/iba/lbma-gold-silver-price" target="_blank" rel="noopener noreferrer">(LBMA)</a></i></p>
+                        <p class="mb-4">All prices are based on the current market spot price and continue to update. Quoted rates remain fixed however on the day of selling, the total value will change due to market activity. To secure this price, we suggest trading ASAP and making contact early.</p>
                         <div class="row">
                             <div class="col-6">
-                                <p class="mb-4">1 Troy Oz Gold:</p>
-                                <p class="mb-4">1 Troy Oz Silver:</p>
-                                <p class="mb-4">1 gram Gold:</p>
-                                <p class="mb-4">1 gram Silver:</p>
+                                <p class="mb-2">1 Troy Oz Gold:</p>
+                                <p class="mb-2">1 Troy Oz Silver:</p>
+                                <p class="mb-2">1 gram Gold:</p>
+                                <p class="mb-2">1 gram Silver:</p>
                             </div>
                             <div class="col-6">
-                                <p class="mb-4">$<%= Number(quote.spot_price_gold_ounce_nzd).toFixed(2) %> NZD</p>
-                                <p class="mb-4">$<%= Number(quote.spot_price_silver_ounce_nzd).toFixed(2) %> NZD</p>
-                                <p class="mb-4">$<%= Number(quote.spot_price_gold_gram_nzd).toFixed(2) %> NZD</p>
-                                <p class="mb-4">$<%= Number(quote.spot_price_silver_gram_nzd).toFixed(2) %> NZD</p>
+                                <p class="mb-2">$<%= Number(quote.spot_price_gold_ounce_nzd).toFixed(2) %> NZD</p>
+                                <p class="mb-2">$<%= Number(quote.spot_price_silver_ounce_nzd).toFixed(2) %> NZD</p>
+                                <p class="mb-2">$<%= Number(quote.spot_price_gold_gram_nzd).toFixed(2) %> NZD</p>
+                                <p class="mb-2">$<%= Number(quote.spot_price_silver_gram_nzd).toFixed(2) %> NZD</p>
                             </div>
                         </div>
+                        <p class="mt-2"><i>Source: <%= new Date(quote.updated_at).toLocaleString() %>: <a href="https://www.ice.com/iba/lbma-gold-silver-price" target="_blank" rel="noopener noreferrer">(LBMA)</a></i></p>
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card mb-4" style="margin-top: 40px">
                     <div class="card-header">
-                        <h3>Bullion Items</h3>
+                        <h3>Quoted Rate</h3>
                     </div>
                     <div class="card-body">
+                        <p>This rate is tied to the quote number: <%= quote.quote_number %>. Your personal details have not be attached to this record so please refer to this number when speaking with a dealer.</p>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -116,6 +159,7 @@
                                     <th>Metal Type</th>
                                     <th>Qty</th>
                                     <th>Weight</th>
+                                    <th>Quoted Rate</th>
                                     <th>Total</th>
                                 </tr>
                             </thead>
@@ -160,11 +204,12 @@
                                         <td><%= item.metal_type %></td>
                                         <td><%= quantity %></td>
                                         <td><%= weightTypeMap[item.weight_type] || item.weight + ' g' %></td>
+                                        <td><%= percent %>%</td>
                                         <td>$<%= rowTotal.toFixed(2) %></td>
                                     </tr>
                                 <% }); %>
                                 <tr class="fw-bold" style="border-top: 1px solid #dee2e6;">
-                                    <td colspan="4" class="text-end" style="padding-top: 40px;">Grand Total:</td>
+                                    <td colspan="5" class="text-end" style="padding-top: 40px;">Grand Total:</td>
                                     <td style="padding-top: 40px;">$<%= grandTotal.toFixed(2) %></td>
                                 </tr>
                             </tbody>
@@ -172,48 +217,49 @@
                     </div>
                 </div>
                 
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h2>Options</h2>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-top: 60px; margin-bottom: 60px;">
+            <div class="card-header">
+                <h1 class="text-start mb-0">Options:</h1>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-start mb-4">
+                        <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
+                            <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
+                            <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">1</text>
+                        </svg>
+                        <p class="mb-3"><strong>Make a time to trade face to face or discuss any questions.</strong> Our premises is convenient, light, friendly and secure. You will be our only client. Cash and bank transfer are available on the day.</p>
+                        <a href="https://christchurchgold.webflow.io/contact-us" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Book Time</a>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 text-start mb-4">
-                                <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
-                                    <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
-                                    <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">1</text>
-                                </svg>
-                                <p class="mb-3"><strong>Make a time to trade face to face or discuss any questions.</strong> Our premises is convenient, light, friendly and secure. You will be our only client. Cash and bank transfer are available on the day.</p>
-                                <a href="https://christchurchgold.webflow.io/contact-us" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Book Time</a>
-                            </div>
-                            <div class="col-md-4 text-start mb-4">
-                                <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
-                                    <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
-                                    <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">2</text>
-                                </svg>
-                                <p class="mb-3"><strong>Post it.</strong> We will send you a secure, free, insured courier package. Note: limited to $20,000 in value.</p>
-                                <a href="https://christchurchgold.webflow.io/sell-gold" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Post It</a>
-                            </div>
-                            <div class="col-md-4 text-start mb-4">
-                                <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
-                                    <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
-                                    <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">3</text>
-                                </svg>
-                                <p class="mb-3"><strong>Mobility constraints?</strong> We are happy to work with clients to find a solution that fits.</p>
-                                <a href="tel:0392257715" style="text-decoration: none; color: inherit;">(03) 925 7715</a>
-                            </div>
-                        </div>
-                        
-                        <hr class="my-4">
-                        
-                        <h5 class="mb-3">Contact Us</h5>
-                        <p class="mb-2"><strong>Phone:</strong> (03) 925 7715</p>
-                        <p class="mb-2"><strong>Mobile:</strong> 021 245 1178</p>
-                        <p class="mb-2"><strong>Private Telegram:</strong> <a href="https://t.me/m/UeYxKnaqYzMx" target="_blank" rel="noopener noreferrer">link</a></p>
-                        <p class="mb-2"><strong>Email:</strong> <a href="mailto:sales@christchurchgold.co.nz">sales@christchurchgold.co.nz</a></p>
-                        <p class="mb-0"><strong>Book Appt:</strong> <a href="https://www.christchurchgold.co.nz/contact-us" target="_blank" rel="noopener noreferrer">link</a></p>
+                    <div class="col-md-4 text-start mb-4">
+                        <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
+                            <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
+                            <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">2</text>
+                        </svg>
+                        <p class="mb-3"><strong>Post it.</strong> We will send you a secure, free, insured courier package. Note: limited to $20,000 in value.</p>
+                        <a href="https://christchurchgold.webflow.io/sell-gold" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Post It</a>
+                    </div>
+                    <div class="col-md-4 text-start mb-4">
+                        <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
+                            <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
+                            <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">3</text>
+                        </svg>
+                        <p class="mb-3"><strong>Mobility constraints?</strong> We are happy to work with clients to find a solution that fits.</p>
+                        <a href="tel:0392257715">(03) 925 7715</a>
                     </div>
                 </div>
+                
+                <hr class="my-4">
+                
+                <h5 class="mb-3">Contact Us</h5>
+                <p class="mb-2"><strong>Phone:</strong> <a href="tel:039257715">(03) 925 7715</a></p>
+                <p class="mb-2"><strong>Mobile:</strong> <a href="tel:0212451178">021 245 1178</a></p>
+                <p class="mb-2"><strong>Private Telegram:</strong> <a href="https://t.me/m/UeYxKnaqYzMx" target="_blank" rel="noopener noreferrer">link</a></p>
+                <p class="mb-2"><strong>Email:</strong> <a href="mailto:sales@christchurchgold.co.nz">sales@christchurchgold.co.nz</a></p>
+                <p class="mb-0"><strong>Book Appt:</strong> <a href="https://www.christchurchgold.co.nz/contact-us" target="_blank" rel="noopener noreferrer">link</a></p>
             </div>
         </div>
         
@@ -222,7 +268,55 @@
                 <h1 class="text-start mb-0">Need to Know:</h1>
             </div>
             <div class="card-body">
-                <div class="card mb-4">
+                <div class="card mb-4" style="margin-top: 20px">
+                    <div class="card-header d-flex align-items-center">
+                        <h2 class="mb-0">Why Chch Gold?</h2>
+                        <!-- <img src="<%= process.env.COMPANY_LOGO_URL %>" alt="<%= process.env.COMPANY_NAME %> Logo" style="width: 12%; margin-left: 20px;"> -->
+                    </div>
+                    <div class="card-body">
+                        <ul class="professional-list" >
+                            <li class="item-professional" style="margin-top: 20px">Easy, professional with great pricing.</li>
+                            <li class="item-private">We value your privacy. Paper only records used when possible or SHA-256 encrypted data & deletion of non-mandatory records after 14 days.</li>
+                            <li class="item-local">Christchurch location, established reputation with international trading partners.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card mb-4" style="margin-top: 40px">
+                    <div class="card-header">
+                        <h2>Location</h2>
+                    </div>
+                    <div class="card-body">
+                        <img src="https://cdn.prod.website-files.com/676bc93dc0d75728455c893b/67baa9b8300720200e378cb4_office_space.jpg" alt="Office Space" class="img-fluid rounded" style="width: 40%;">
+                    </div>
+                        <div class="card-body">
+                        <blockquote class="mb-4" style="font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
+                            Secure, friendly, light trading premises by appointment
+                        </blockquote>
+                        <a href="https://christchurchgold.webflow.io/contact-us" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000; margin-top: 20px;">Book a Time</a>
+                    </div>
+                </div>
+                <div class="card mb-4" style="margin-top: 40px">
+                    <div class="card-header">
+                        <h2>Payment Terms</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0" style="line-height: 2;">
+                            <li>All payments are made via direct bank transfer to your nominated New Zealand bank account.</li>
+                            <li>Payments are typically processed within 2-24 hours of agreement.</li>
+                            <li>Cash payments are avaialabe however limited to $10,000 per person per day.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card mb-4" style="margin-top: 40px">
+                    <div class="card-header">
+                        <h2>Key Condishions</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">Placeholder text for the fourth new section.</p>
+                    </div>
+                </div>
+                <div class="card mb-4" style="margin-top: 40px">
                     <div class="card-header">
                         <h2>Our Buying Process</h2>
                     </div>
@@ -238,7 +332,7 @@
                     </div>
                 </div>
 
-                <div class="card mb-4">
+                <div class="card mb-4" style="margin-top: 40px">
                     <div class="card-header">
                         <h2>What We Buy</h2>
                     </div>
@@ -247,14 +341,7 @@
                     </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <h2>Payment Terms</h2>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-0">All payments are made via direct bank transfer to your nominated New Zealand bank account. Payments are typically processed within 2-24 hours of agreement.</p>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>

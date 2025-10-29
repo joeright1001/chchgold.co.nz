@@ -55,3 +55,29 @@ body.splash img {
     font-size: 1.75rem;
     font-weight: bold;
 }
+
+/* Professional List with SVG bullets */
+.professional-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.professional-list li {
+    padding-left: 2.5rem;
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.professional-list li::before {
+    content: '';
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-image: url('/svg/professional.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
