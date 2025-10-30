@@ -19,6 +19,7 @@
         <a href="/admin" class="btn btn-secondary">Back to Dashboard</a>
     </div>
     <div class="card-body">
+        <%- include('partials/_status_and_actions', { quote: quote }) %>
         <form action="/admin/<%= quote.id %>" method="POST" id="admin-quote-form">
             <!-- Editable Customer Details -->
             <div class="card mb-4">
@@ -131,6 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
         spinner.classList.remove('d-none');
         submitButton.disabled = true;
     });
+
 });
 </script>
 

@@ -74,7 +74,7 @@
     </div>
     <div class="card-body">
         <div class="mb-3">
-            <input type="text" id="searchInput" class="form-control" placeholder="Search by mobile or email...">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by quote number, mobile, or email...">
         </div>
         <div class="table-responsive">
             <table class="table table-striped table-hover admin-table" id="quotesTable">
@@ -84,6 +84,7 @@
                         <th class="col-items">Items</th>
                         <th class="col-mobile">Mobile</th>
                         <th class="col-email">Email</th>
+                        <th class="col-status">Status</th>
                         <th class="col-customer">Created At</th>
                         <th class="col-actions">Actions</th>
                     </tr>
@@ -96,6 +97,7 @@
                                 <td class="col-items"><%= quote.items %></td>
                                 <td class="col-mobile"><%= quote.customer_mobile || '-' %></td>
                                 <td class="col-email"><%= quote.customer_email || '-' %></td>
+                                <td class="col-status"><%= quote.status %></td>
                                 <td class="col-customer"><%= new Date(quote.created_at).toLocaleString() %></td>
                                 <td class="col-actions">
                                     <a href="/quote/edit/<%= quote.id %>" class="btn btn-sm btn-secondary">Display View</a>
@@ -128,10 +130,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Skip the "no quotes" row
             if (row.cells.length === 1) return;
 
+            const quoteNumber = row.cells[0].textContent.toLowerCase();
             const mobile = row.cells[2].textContent.toLowerCase();
             const email = row.cells[3].textContent.toLowerCase();
 
-            if (mobile.includes(searchTerm) || email.includes(searchTerm)) {
+            if (quoteNumber.includes(searchTerm) || mobile.includes(searchTerm) || email.includes(searchTerm)) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';

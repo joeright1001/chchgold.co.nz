@@ -17,10 +17,11 @@ router.get('/', async (req, res) => {
         q.customer_mobile,
         q.customer_email,
         q.created_at,
+        q.status,
         STRING_AGG(qi.item_name, ', ') AS items
       FROM quotes q
       LEFT JOIN quote_items qi ON q.id = qi.quote_id
-      GROUP BY q.id, q.customer_mobile, q.customer_email
+      GROUP BY q.id, q.customer_mobile, q.customer_email, q.status
       ORDER BY q.created_at DESC;
     `;
     const result = await pool.query(query);
@@ -120,6 +121,19 @@ router.post('/:id', async (req, res) => {
     res.redirect(`/admin/${req.params.id}`);
   } catch (error) {
     logger.error(`Error updating quote ${req.params.id}`, { error: error.message });
+    res.status(500).send('Server error');
+  }
+});
+
+// POST /admin/:id/expire - Marks a quote as expired
+router.post('/:id/expire', async (req, res) => {
+  try {
+    await quoteService.updateQuoteStatus(req.params.id, 'expired');
+    logger.info(`Quote ${req.params.id} marked as expired by admin.`);
+    // Add a cache-busting query parameter to the redirect URL
+    res.redirect(`/admin/${req.params.id}?updated=true&t=${Date.now()}`);
+  } catch (error) {
+    logger.error(`Error expiring quote ${req.params.id}`, { error: error.message });
     res.status(500).send('Server error');
   }
 });

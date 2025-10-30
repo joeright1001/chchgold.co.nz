@@ -12,6 +12,8 @@
     </div>
     <div class="card-body">
         <!-- Customer URL Panel -->
+        <%- include('partials/_status_and_actions', { quote: quote }) %>
+
         <div class="card mb-4">
             <div class="card-header">
                 <h2>Link</h2>
@@ -63,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         spinner.classList.remove('d-none');
         submitButton.disabled = true;
     });
+
 });
 </script>
 

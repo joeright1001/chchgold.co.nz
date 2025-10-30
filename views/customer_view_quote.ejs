@@ -130,11 +130,22 @@
                 <img src="<%= process.env.COMPANY_LOGO_URL_WHITE %>" alt="<%= process.env.COMPANY_NAME %> Logo" class="company-logo">
             </a>
         </div>
-        <div class="card">
-            <div class="card-header">
-                <h1 class="text-start mb-0" style="padding-top: 10px; padding-bottom: 20px;">Bullion Quote: <%= quote.quote_number %></h1>
+        <% if (quote.status === 'expired') { %>
+            <div class="card text-white bg-dark">
+                <div class="card-header">
+                    <h1>Quote Expired</h1>
+                </div>
+                <div class="card-body">
+                    <p>This quote has expired and is no longer valid. Please contact us to get a new quote.</p>
+                    <a href="https://www.christchurchgold.co.nz" class="btn btn-primary">Go to Homepage</a>
+                </div>
             </div>
-            <div class="card-body">
+        <% } else { %>
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="text-start mb-0" style="padding-top: 10px; padding-bottom: 20px;">Bullion Quote: <%= quote.quote_number %></h1>
+                </div>
+                <div class="card-body">
                 <div class="border rounded p-3 mb-4">
                      <blockquote class="mb-4" style="font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
                             Sell Your Gold & Silver easily, quickly and at a great rate.
@@ -421,6 +432,7 @@
 
             </div>
         </div>
+    <% } %>
     </div>
     <!-- Office Image Modal -->
     <div class="modal fade" id="officeImageModal" tabindex="-1" aria-labelledby="officeImageModalLabel" aria-hidden="true">

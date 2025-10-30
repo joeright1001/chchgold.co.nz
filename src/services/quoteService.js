@@ -411,6 +411,31 @@ async function updateQuoteSettings(id, settings) {
   }
 }
 
+/**
+ * Updates the status of a given quote.
+ * @param {string} id - The UUID of the quote.
+ * @param {string} status - The new status (e.g., 'active', 'expired').
+ * @returns {Promise<void>}
+ */
+async function updateQuoteStatus(id, status) {
+  const client = await pool.connect();
+  try {
+    const query = `
+      UPDATE quotes 
+      SET 
+        status = $1,
+        updated_at = NOW()
+      WHERE id = $2;
+    `;
+    await client.query(query, [status, id]);
+  } catch (error) {
+    logger.error(`Error updating quote status for quote ${id}`, { error });
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   getNextQuoteNumber,
   createQuote,
@@ -421,5 +446,6 @@ module.exports = {
   validateCustomerCredential,
   updateQuoteDetails,
   updateQuoteSettings,
+  updateQuoteStatus,
   ensureUniqueShortId, // Export for migration script
 };

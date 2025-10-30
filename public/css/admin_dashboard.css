@@ -6,9 +6,9 @@
     min-width: 100px;
 }
 
-.admin-table .col-customer {
-    width: 20%;
-    min-width: 150px;
+.admin-table .col-items {
+    width: 25%;
+    min-width: 200px;
 }
 
 .admin-table .col-mobile {
@@ -17,17 +17,22 @@
 }
 
 .admin-table .col-email {
-    width: 18%;
+    width: 15%;
     min-width: 180px;
 }
 
-.admin-table .col-items {
-    width: 30%;
-    min-width: 200px;
+.admin-table .col-status {
+    width: 8%;
+    min-width: 90px;
+}
+
+.admin-table .col-customer {
+    width: 15%;
+    min-width: 150px;
 }
 
 .admin-table .col-actions {
-    width: 16%;
+    width: 17%;
     min-width: 100px;
     text-align: center;
 }

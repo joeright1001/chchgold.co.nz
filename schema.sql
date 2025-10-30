@@ -1,3 +1,6 @@
+-- Set timezone to New Zealand
+SET TIMEZONE='Pacific/Auckland';
+
 -- Create the quotes table
 CREATE TABLE quotes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -15,7 +18,8 @@ CREATE TABLE quotes (
     totals JSONB,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    show_quoted_rate BOOLEAN DEFAULT FALSE
+    show_quoted_rate BOOLEAN DEFAULT FALSE,
+    status VARCHAR(20) NOT NULL DEFAULT 'active'
 );
 
 -- Create the quote_items table
