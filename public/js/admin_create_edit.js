@@ -30,12 +30,12 @@
  * - Calculate Price: metal_type × weight × quantity × spot_price
  * - Grand Total: Sum of all item prices
  * 
- * WEIGHT TYPE MANAGEMENT:
- * - The 'Weight Type' dropdown in the admin panel serves both display and calculation purposes.
- * - The `value` of each `<option>` is the gram equivalent of the weight type (e.g., "31.1035" for "1 oz").
- * - When a weight type is selected, this gram value is used to populate the 'Weight (g)' input field for price calculations.
- * - This same gram value is also stored in the hidden 'weightType' field and saved to the database.
- * - The customer-facing view (`customer_view_quote.ejs`) uses this stored gram value to look up the correct display text (e.g., "1 oz") from a mapping object (`weightTypeMap`).
+ * WEIGHT TYPE MANAGEMENT (DYNAMIC):
+ * - The list of weight options is NOT hardcoded in this file.
+ * - It is passed from the server and stored in a global `window.weightOptions` variable.
+ * - On page load, the `populateWeightSelect` function reads this global variable and dynamically builds the dropdowns for ALL item rows (both initial and newly added).
+ * - This ensures a single source of truth for the options, managed in `src/config/weightOptions.js`.
+ * - The `value` of each `<option>` is the gram equivalent, used for calculations and saved to the database.
  * 
  * NOTE: Prices stored in card dataset (data-gold-gram-nzd, data-silver-gram-nzd)
  * NOTE: Item indices must stay sequential for form submission
@@ -187,11 +187,62 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== ITEMS MANAGEMENT =====
+
+    /**
+     * Populates a <select> element with weight options from the global window.weightOptions.
+     * @param {HTMLSelectElement} selectElement The <select> element to populate.
+     * @param {string|null} selectedValue The value to be pre-selected.
+     */
+    function populateWeightSelect(selectElement, selectedValue = null) {
+        // Ensure the global variable exists
+        if (!window.weightOptions || !Array.isArray(window.weightOptions)) {
+            console.error('weightOptions is not available.');
+            return;
+        }
+
+        selectElement.innerHTML = ''; // Clear existing options
+
+        const selectOption = document.createElement('option');
+        selectOption.value = '';
+        selectOption.textContent = 'Select...';
+        selectElement.appendChild(selectOption);
+
+        // Group options by their 'group' property
+        const groups = window.weightOptions.reduce((acc, option) => {
+            (acc[option.group] = acc[option.group] || []).push(option);
+            return acc;
+        }, {});
+
+        // Create and append optgroups and options
+        for (const groupName in groups) {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = groupName;
+            groups[groupName].forEach(optionData => {
+                const option = document.createElement('option');
+                option.value = optionData.value;
+                option.textContent = optionData.text;
+                // Use '==' for comparison because values from HTML can be strings
+                if (selectedValue && selectedValue == optionData.value) {
+                    option.selected = true;
+                }
+                optgroup.appendChild(option);
+            });
+            selectElement.appendChild(optgroup);
+        }
+    }
+
     const itemsContainer = document.getElementById('items-container');
     const addItemBtn = document.getElementById('add-item-btn');
 
     // Initialize - set up event listeners for existing items
     setupItemEventListeners();
+
+    // Populate all existing weight dropdowns on page load, preserving the selected value
+    document.querySelectorAll('.weight-type-select').forEach(select => {
+        const hiddenInput = select.closest('.item-row').querySelector('.weight-type-hidden');
+        const selectedValue = hiddenInput ? hiddenInput.value : null;
+        populateWeightSelect(select, selectedValue);
+    });
 
     // Add new item
     addItemBtn.addEventListener('click', (e) => {
@@ -244,22 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="col-weight-type">
                     <label class="form-label">Weight Type:</label>
-                    <select class="form-select weight-type-select" data-index="${index}">
-                        <option value="">Select...</option>
-                        <option value="1">1g</option>
-                        <option value="5">5g</option>
-                        <option value="10">10g</option>
-                        <option value="20">20g</option>
-                        <option value="50">50g</option>
-                        <option value="1.555175">1/20 oz</option>
-                        <option value="3.11035">1/10 oz</option>
-                        <option value="15.55175">1/2 oz</option>
-                        <option value="31.1035">1 oz</option>
-                        <option value="62.207">2 oz</option>
-                        <option value="155.5175">5 oz</option>
-                        <option value="311.035">10 oz</option>
-                        <option value="1000">1 Kgs</option>
-                    </select>
+                    <select class="form-select weight-type-select" data-index="${index}"></select>
                 </div>
                 <div class="col-weight">
                     <label class="form-label">Weight (g):</label>
@@ -272,6 +308,10 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         
+        // Populate the newly created select element using the single source of truth
+        const weightTypeSelect = div.querySelector('.weight-type-select');
+        populateWeightSelect(weightTypeSelect);
+
         setupItemRowListeners(div);
         return div;
     }

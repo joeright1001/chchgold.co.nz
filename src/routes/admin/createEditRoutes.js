@@ -23,6 +23,10 @@
  * - Admin clicks "Mark as Expired" → POST /admin/create-edit/:id/expire
  * - Updates status → Redirects with updated=true flag
  * 
+ * DATA FLOW for Weight Options:
+ * - Reads the master list of weight options from `../../config/weightOptions`.
+ * - Passes this list to the `admin_create_edit.ejs` template during render.
+ * 
  * NOTE: This route file is mounted at /admin/create-edit in server.js
  * NOTE: All routes require staffAuth middleware applied at mount point
  */
@@ -31,6 +35,7 @@ const express = require('express');
 const router = express.Router();
 const quoteService = require('../../services/quoteService');
 const logger = require('../../utils/logger');
+const weightOptions = require('../../config/weightOptions');
 
 // GET /admin/create-edit - Renders the unified create/edit page in CREATE mode
 router.get('/', async (req, res) => {
@@ -41,7 +46,8 @@ router.get('/', async (req, res) => {
       isUpdated: false,
       quote: {},
       items: [],
-      customerUrl: ''
+      customerUrl: '',
+      weightOptions: weightOptions
     });
   } catch (error) {
     logger.error('Error rendering create-edit page', { error: error.message });
@@ -71,7 +77,8 @@ router.get('/:id', async (req, res) => {
       isUpdated: isUpdated,
       quote: quoteData.quote,
       items: quoteData.items,
-      customerUrl: customerUrl
+      customerUrl: customerUrl,
+      weightOptions: weightOptions
     });
   } catch (error) {
     logger.error(`Error fetching quote for create-edit view (ID: ${req.params.id})`, { error: error.message });
