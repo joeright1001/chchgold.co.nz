@@ -6,6 +6,7 @@
     <title>Your Bullion Quote - <%= quote.quote_number %></title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/customer_view_quote.css">
     <style>
         body {
             position: relative;
@@ -100,7 +101,19 @@
             background-image: url('/svg/local.svg');
         }
 
+        .contact-logo {
+            width: 20%;
+            margin-bottom: 15px;
+        }
+
+        .info-list li {
+            margin-bottom: 1rem; /* Add space between list items */
+        }
+
         @media (max-width: 768px) {
+            .contact-logo {
+                width: 40%; /* Make logo larger on mobile */
+            }
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
@@ -188,41 +201,53 @@
                     <div class="card-body">
                         <p>This price is tied to the quote number: <%= quote.quote_number %>. Your personal details have not been attached to this record so please refer to this number when speaking with a dealer.</p>
                         <div class="table-responsive">
-                            <table class="table">
+                            <table class="table quoted-price-table <%= quote.show_quoted_rate ? 'show-rate' : '' %>">
                                 <thead>
                                     <tr>
                                         <% if (quote.show_quoted_rate) { %>
                                             <th>Name</th>
                                             <th>Metal</th>
                                             <th>Qty</th>
-                                            <th>Weight</th>
+                                            <th>Size</th>
                                             <th>Rate</th>
                                             <th>Total</th>
                                         <% } else { %>
                                             <th>Name</th>
                                             <th>Metal</th>
                                             <th>Qty</th>
-                                            <th>Weight</th>
+                                            <th>Size</th>
                                             <th>Total</th>
                                         <% } %>
                                     </tr>
                                 </thead>
                                 <tbody>
                                 <% 
+                                // WEIGHT TYPE MANAGEMENT (Customer View)
+                                // This `weightTypeMap` is crucial for displaying user-friendly weight descriptions.
+                                // The `item.weight_type` stored in the database is the gram value (e.g., "31.1035").
+                                // This map translates that gram value into a descriptive string (e.g., "1 oz") for display.
+                                // To add a new weight type, you must:
+                                // 1. Add the new option to the `<select>` dropdown in `views/admin_create_edit.ejs`.
+                                // 2. Add a corresponding entry here in the `weightTypeMap`.
                                 const weightTypeMap = {
+                                    "0": "Sovereign",
+                                    "0.0": "Half Sovereign",
                                     "1": "1g",
                                     "5": "5g",
                                     "10": "10g",
                                     "20": "20g",
                                     "50": "50g",
+                                    "100": "100g",
+                                    "500": "500g",
+                                    "1000": "1 Kgs",
                                     "1.555175": "1/20 oz",
                                     "3.11035": "1/10 oz",
+                                    "7.775869": "1/4 oz",
                                     "15.55175": "1/2 oz",
                                     "31.1035": "1 oz",
                                     "62.207": "2 oz",
                                     "155.5175": "5 oz",
-                                    "311.035": "10 oz",
-                                    "1000": "1 Kgs"
+                                    "311.035": "10 oz"
                                 };
 
                                 let grandTotal = 0;
@@ -313,7 +338,7 @@
                 
              
                 <div class="contact-details" style="padding-bottom: 40px;" >
-                    <img src="<%= process.env.COMPANY_LOGO_URL %>" alt="<%= process.env.COMPANY_NAME %> Logo" style="width: 20%; margin-bottom: 15px;">
+                    <img src="<%= process.env.COMPANY_LOGO_URL %>" alt="<%= process.env.COMPANY_NAME %> Logo" class="contact-logo">
                     <p class="mb-2"><strong>Phone:</strong> <a href="tel:039257715">(03) 925 7715</a></p>
                     <p class="mb-2"><strong>Mobile:</strong> <a href="tel:0212451178">021 245 1178</a></p>
                     <p class="mb-2"><strong>Private Telegram:</strong> <a href="https://t.me/m/UeYxKnaqYzMx" target="_blank" rel="noopener noreferrer">link</a></p>
@@ -341,14 +366,14 @@
             <div class="card-body">
                 <div class="card mb-4" style="margin-top: 20px">
                     <div class="card-header d-flex align-items-center">
-                        <h2 class="mb-0">Why Choose Us?</h2>
+                        <h2 class="mb-0">Why Trade with Us</h2>
                         <!-- <img src="<%= process.env.COMPANY_LOGO_URL %>" alt="<%= process.env.COMPANY_NAME %> Logo" style="width: 12%; margin-left: 20px;"> -->
                     </div>
                     <div class="card-body">
                         <ul class="professional-list" >
                             <li class="item-private" style="margin-top: 20px">We value your privacy. Paper only records when possible, SHA-256 data encryption, and deletion of non-mandatory records after 14 days.</li>
                             <li class="item-professional">Easy, professional with great pricing.</li>
-                            <li class="item-local">Christchurch location, established reputation, and international trading suppliers.</li>
+                            <li class="item-local">Christchurch location, established reputation, and international trading partners.</li>
                         </ul>
                     </div>
                 </div>
@@ -378,8 +403,8 @@
                             <li>Bank payments are typically processed within 2-24 hours of agreement.</li>
                         </ul>
                         <p class="mt-2"><small>*At our discretion, may require additional information and may attract additional fees.</small></p>
-                            <blockquote class="mb-4" style="font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
-                            For security, funds are held offsite and need to be arranged ahead of time.
+                        <blockquote class="mb-4" style="font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
+                            For security, payment terms need to be arranged prior as all asset reserves are held off-site.
                         </blockquote>
                     </div>
                 </div>
@@ -388,17 +413,16 @@
                         <h2>Security</h2>
                     </div>
                     <div class="card-body">
-                        <ul class="mb-0" style="line-height: 2;">
-                            <li><b>Locked Premises:</b> For security reasons, our doors remain locked at all times. All viewings and appointments must be arranged in advance.</li>
-                            <li><b>Visitor Numbers:</b> Entry is limited to the agreed number of attendees ahead of time. Additional members will not be provided admission.</li>
-                            <li><b>Identification:</b> First-time customers will need to display a valid photo identification before entering to confirm the correct appointment.</li>
-                            <li><b>Appearance:</b> To assist with security, we ask that visitors remove sunglasses, caps, or hooded clothing, or any face covering before entry.</li>
-                            <li><b>Valuables:</b> All cash and bullion assets other than what is specifically allocated for your trade are stored off-site in a time-delay vault in the City Centre.</li>
-                            <li><b>Cameras:</b> Multiple high-resolution cameras are onsite and remotely monitored. Footage is permanently deleted after 14 days; however, in case of criminal activity, all information is immediately made available to the police.</li>
-
+                        <p>Given the high value nature of these transactions, additional security steps are taken for your safety and ours. We hope you understand.</p>
+                        <ul class="mb-0 info-list" style="line-height: 1.5;">
+                            <li><b>Locked Premises:</b> Entry remains locked at all times and appointments must be arranged in advance.</li>
+                            <li><b>Visitor Numbers:</b> No more than two attendees are permitted.</li>
+                            <li><b>Identification:</b> First-time customers will need to display a valid photo identification before entry to confirm the appointment.</li>
+                            <li><b>Appearance:</b> We ask that visitors remove any face or head coverings: sunglasses, caps, or hooded clothing, masks, etc.</li>
+                            <li><b>Cameras:</b> High-resolution cameras operate with remote monitoring. Footage is permanently deleted after 14 days. In the case of criminal activity, all information is immediately made available to the police.</li>
                         </ul>
-                        <blockquote class="mb-4" style="padding-top: 20px; ;font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
-                            For your safety and ours, valid photo identification is required.
+                        <blockquote class="mt-3" style="font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
+                        Valuables are stored off-site in a time-delayed vault. Only what is arranged prior is available.
                         </blockquote>
                     </div>
                 </div>
@@ -409,15 +433,15 @@
                         <h2>In-Person Trade</h2>
                     </div>
                     <div class="card-body">
-                         <p>If you choose to trade in-person, there are some key aspects to note.</p>
-
-                        <ul class="mb-0" style="line-height: 2;">
-                            <li>Parking is reserved directly outside the main entrance. There are two stone bollards with a reserved sign. Minimal signage is displayed for security reasons and you will be the only customers onsite. The entrance is to the left of the Idea Building.</li>
-                            <li>The entrance remains locked at all times. Ring the black intercom or just call from your mobile. For new customers, ID will need to be displayed before entry.</li>
-                            <li>Photo ID will be photocopied (paper only record) when completing a trade due to <a href="https://www.dia.govt.nz/AML-CFT-High-value-dealers-Prohibited-cash-transactions-for-specified-high-value-goods" target="_blank" rel="noopener noreferrer">Section 67A of the AML/CFT Act</a>. </li>
+                         <p>When trading in person, please observe the following:.</p>
+                        <ul class="mb-0 info-list" style="line-height: 1.5;">
+                            <li>Parking is reserved directly outside the main entrance marked by two stone bollards with a reserved sign.</li>
+                            <li>Minimal signage is displayed for security reasons and you will be the only customers onsite. The entrance is to the left of Ideal Buildings.</li>
+                            <li>The entrance will be locked on arrival. Ring the black intercom or just call from your mobile. For new customers, ID will need to be displayed before entry.</li>
+                            <li>Photo ID will be photocopied (paper only record) when completing a trade due to <a href="https://www.dia.govt.nz/AML-CFT-High-value-dealers-Prohibited-cash-transactions-for-specified-high-value-goods" target="_blank" rel="noopener noreferrer">Section 67A of the AML/CFT Act</a>.</li>
                         </ul>
-                        <blockquote class="mb-4" style="padding-top: 20px; ;font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
-                            For your safety and ours, valid photo ID is required. However, we do not digitize this record.
+                        <blockquote class="mt-3" style="font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
+                            New customers will need to display a valid photo ID on arrival.
                         </blockquote>
                     </div>
                 </div>

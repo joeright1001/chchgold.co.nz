@@ -10,6 +10,7 @@
  * 4. URL Copy - Copy customer URL to clipboard
  * 5. Form Submission - Handle loading states
  * 6. Expire Quote - Confirm and submit expire request
+ * 7. Weight Type Management - Handles the logic for weight type selection and data storage.
  * 
  * WORKFLOW:
  * INITIALIZATION:
@@ -28,6 +29,13 @@
  * - Weight Type Change: Auto-fills weight input
  * - Calculate Price: metal_type × weight × quantity × spot_price
  * - Grand Total: Sum of all item prices
+ * 
+ * WEIGHT TYPE MANAGEMENT:
+ * - The 'Weight Type' dropdown in the admin panel serves both display and calculation purposes.
+ * - The `value` of each `<option>` is the gram equivalent of the weight type (e.g., "31.1035" for "1 oz").
+ * - When a weight type is selected, this gram value is used to populate the 'Weight (g)' input field for price calculations.
+ * - This same gram value is also stored in the hidden 'weightType' field and saved to the database.
+ * - The customer-facing view (`customer_view_quote.ejs`) uses this stored gram value to look up the correct display text (e.g., "1 oz") from a mapping object (`weightTypeMap`).
  * 
  * NOTE: Prices stored in card dataset (data-gold-gram-nzd, data-silver-gram-nzd)
  * NOTE: Item indices must stay sequential for form submission
@@ -300,6 +308,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const selectedWeight = e.target.value;
             weightInput.value = selectedWeight;
+            
+            // The 'weight_type' saved to the database is the gram value from the dropdown.
+            // This value is used by `customer_view_quote.ejs` to look up the display text
+            // in its `weightTypeMap`. This ensures that the admin panel uses grams for
+            // calculations, while the customer sees a user-friendly description.
             weightTypeHidden.value = selectedWeight;
             
             calculateItemPrice(row);

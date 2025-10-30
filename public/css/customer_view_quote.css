@@ -1,0 +1,65 @@
+/* Customer View Quote Table Styles */
+
+.quoted-price-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.quoted-price-table th, 
+.quoted-price-table td {
+    padding: 0.5rem 0.4rem;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* Allow the Name column (first child) to wrap its content */
+.quoted-price-table th:first-child,
+.quoted-price-table td:first-child {
+    white-space: normal;
+}
+
+/* Mobile-first column widths (default) */
+
+/* When rate is NOT shown (5 columns) */
+.quoted-price-table:not(.show-rate) th:nth-child(1),
+.quoted-price-table:not(.show-rate) td:nth-child(1) { width: 38%; } /* Name */
+
+.quoted-price-table:not(.show-rate) th:nth-child(2),
+.quoted-price-table:not(.show-rate) td:nth-child(2) { width: 15%; } /* Metal */
+
+.quoted-price-table:not(.show-rate) th:nth-child(3),
+.quoted-price-table:not(.show-rate) td:nth-child(3) { width: 12%; } /* Qty */
+
+.quoted-price-table:not(.show-rate) th:nth-child(4),
+.quoted-price-table:not(.show-rate) td:nth-child(4) { width: 15%; } /* Weight */
+
+.quoted-price-table:not(.show-rate) th:nth-child(5),
+.quoted-price-table:not(.show-rate) td:nth-child(5) { width: 20%; } /* Total */
+
+
+/* When rate IS shown (6 columns) */
+.quoted-price-table.show-rate th:nth-child(1),
+.quoted-price-table.show-rate td:nth-child(1) { width: 25%; } /* Name */
+
+.quoted-price-table.show-rate th:nth-child(2),
+.quoted-price-table.show-rate td:nth-child(2) { width: 14%; } /* Metal */
+
+.quoted-price-table.show-rate th:nth-child(3),
+.quoted-price-table.show-rate td:nth-child(3) { width: 10%; } /* Qty */
+
+.quoted-price-table.show-rate th:nth-child(4),
+.quoted-price-table.show-rate td:nth-child(4) { width: 21%; } /* Weight */
+
+.quoted-price-table.show-rate th:nth-child(5),
+.quoted-price-table.show-rate td:nth-child(5) { width: 10%; } /* Rate */
+
+.quoted-price-table.show-rate th:nth-child(6),
+.quoted-price-table.show-rate td:nth-child(6) { width: 23%; } /* Total */
+
+/* Media query for larger screens (e.g., desktops) */
+@media (min-width: 768px) {
+    .quoted-price-table th, 
+    .quoted-price-table td {
+        padding: 0.75rem; /* Increase padding for more space */
+    }
+}

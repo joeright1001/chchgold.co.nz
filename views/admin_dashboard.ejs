@@ -87,22 +87,20 @@
                         <th class="col-email">Email</th>
                         <th class="col-status">Status</th>
                         <th class="col-customer">Created At</th>
-                        <th class="col-actions">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <% if(quotes.length > 0) { %>
                         <% quotes.forEach(quote => { %>
                             <tr>
-                                <td class="col-quote-number"><%= quote.quote_number %></td>
+                                <td class="col-quote-number">
+                                    <a href="/admin/create-edit/<%= quote.id %>" target="_blank"><%= quote.quote_number %></a>
+                                </td>
                                 <td class="col-items"><%= quote.items %></td>
                                 <td class="col-mobile"><%= quote.customer_mobile || '-' %></td>
                                 <td class="col-email"><%= quote.customer_email || '-' %></td>
                                 <td class="col-status"><%= quote.status %></td>
                                 <td class="col-customer"><%= new Date(quote.created_at).toLocaleString() %></td>
-                                <td class="col-actions">
-                                    <a href="/admin/create-edit/<%= quote.id %>" class="btn btn-sm btn-primary">View</a>
-                                </td>
                             </tr>
                         <% }); %>
                     <% } else { %>
