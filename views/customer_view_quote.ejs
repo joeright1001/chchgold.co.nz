@@ -99,6 +99,25 @@
         .professional-list .item-local::before {
             background-image: url('/svg/local.svg');
         }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .card {
+                margin-top: 20px !important;
+                margin-bottom: 20px !important;
+            }
+            .container {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+            .card-body {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -155,26 +174,27 @@
                     </div>
                     <div class="card-body">
                         <p>This price is tied to the quote number: <%= quote.quote_number %>. Your personal details have not been attached to this record so please refer to this number when speaking with a dealer.</p>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <% if (quote.show_quoted_rate) { %>
-                                        <th style="width: 30%;">Name</th>
-                                        <th style="width: 15%;">Metal</th>
-                                        <th style="width: 8%;">Qty</th>
-                                        <th style="width: 8%;">Weight</th>
-                                        <th style="width: 8%;">Rate</th>
-                                        <th style="width: 20%;">Total</th>
-                                    <% } else { %>
-                                        <th style="width: 35%;">Name</th>
-                                        <th style="width: 15%;">Metal</th>
-                                        <th style="width: 10%;">Qty</th>
-                                        <th style="width: 15%;">Weight</th>
-                                        <th style="width: 25%;">Total</th>
-                                    <% } %>
-                                </tr>
-                            </thead>
-                            <tbody>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <% if (quote.show_quoted_rate) { %>
+                                            <th>Name</th>
+                                            <th>Metal</th>
+                                            <th>Qty</th>
+                                            <th>Weight</th>
+                                            <th>Rate</th>
+                                            <th>Total</th>
+                                        <% } else { %>
+                                            <th>Name</th>
+                                            <th>Metal</th>
+                                            <th>Qty</th>
+                                            <th>Weight</th>
+                                            <th>Total</th>
+                                        <% } %>
+                                    </tr>
+                                </thead>
+                                <tbody>
                                 <% 
                                 const weightTypeMap = {
                                     "1": "1g",
@@ -227,6 +247,7 @@
                                 </tr>
                             </tbody>
                         </table>
+                        </div>
                         <p class="mb-3" style="font-size: 0.9rem;"><strong>*Prices will be updated on the day of selling in line with the current global spot price.</strong> The can result in your quoted value going up or down. If you are happy with the price, we suggest trading early to avoid a loss.</p>
                     </div>
                 </div>
@@ -365,6 +386,33 @@
                     </div>
                 </div>
               
+
+                 <div class="card mb-4" style="margin-top: 40px">
+                    <div class="card-header">
+                        <h2>On the Day</h2>
+                    </div>
+                    <div class="card-body">
+                         <p>If you choose to trade in-person, here are key aspects to note.</p>
+
+                        <ul class="mb-0" style="line-height: 2;">
+                            <li>There is reserverd parking directly outside of the office. The office has mininal signage for security reasons and you will be the only customers onsite</li>
+                            <li>The enternce remain locked at all times. Ring the black intercom or just call from your mobile. For new customers, ID will needs to be displayed before entry.</li>
+                            <li>Photo ID will also be needed to complete and trade due to <a href="https://www.dia.govt.nz/AML-CFT-High-value-dealers-Prohibited-cash-transactions-for-specified-high-value-goods" target="_blank" rel="noopener noreferrer">Section 67A of the AML/CFT Act</a>. </li>
+                        </ul>
+                        <blockquote class="mb-4" style="padding-top: 20px; ;font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
+                            For your safety and ours, valid photo identification is required.
+                        </blockquote>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+
+
             </div>
         </div>
     </div>
