@@ -106,12 +106,14 @@
                 -webkit-overflow-scrolling: touch;
             }
             .card {
-                margin-top: 20px !important;
-                margin-bottom: 20px !important;
+                margin-bottom: 0 !important;
+            }
+            .card + .card {
+                margin-top: 60px !important;
             }
             .container {
-                padding-left: 5px;
-                padding-right: 5px;
+                padding-left: 10px;
+                padding-right: 10px;
             }
             .card-body {
                 padding-left: 5px;
@@ -261,12 +263,14 @@
 
         <div class="card" style="margin-top: 60px; margin-bottom: 60px;">
             <div class="card-header">
-                <h1 class="text-start mb-0" style="padding-top: 10px; padding-bottom: 20px;">Options:</h1>
+                <h1 class="text-start mb-0" style="padding-top: 10px; padding-bottom: 10px;">Options:</h1>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4 text-start mb-4">
-                        <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 text-start mb-4">
+                                <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
                             <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
                             <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">1</text>
                         </svg>
@@ -304,6 +308,8 @@
                     <p class="mb-2"><strong>Private Telegram:</strong> <a href="https://t.me/m/UeYxKnaqYzMx" target="_blank" rel="noopener noreferrer">link</a></p>
                     <p class="mb-2"><strong>Email:</strong> <a href="mailto:sales@christchurchgold.co.nz">sales@christchurchgold.co.nz</a></p>
                 <p class="mb-0"><strong>Book Appt:</strong> <a href="https://www.christchurchgold.co.nz/contact-us?sbq=<%= quote.quote_number %>" target="_blank" rel="noopener noreferrer">link</a></p>
+                </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -389,18 +395,18 @@
 
                  <div class="card mb-4" style="margin-top: 40px">
                     <div class="card-header">
-                        <h2>On the Day</h2>
+                        <h2>In-Person Trade</h2>
                     </div>
                     <div class="card-body">
-                         <p>If you choose to trade in-person, here are key aspects to note.</p>
+                         <p>If you choose to trade in-person, there are some key aspects to note.</p>
 
                         <ul class="mb-0" style="line-height: 2;">
-                            <li>There is reserverd parking directly outside of the office. The office has mininal signage for security reasons and you will be the only customers onsite</li>
-                            <li>The enternce remain locked at all times. Ring the black intercom or just call from your mobile. For new customers, ID will needs to be displayed before entry.</li>
-                            <li>Photo ID will also be needed to complete and trade due to <a href="https://www.dia.govt.nz/AML-CFT-High-value-dealers-Prohibited-cash-transactions-for-specified-high-value-goods" target="_blank" rel="noopener noreferrer">Section 67A of the AML/CFT Act</a>. </li>
+                            <li>Parking is reserved directly outside the main entrance. There are two stone bollards with a reserved sign. Minimal signage is displayed for security reasons and you will be the only customers onsite. The entrance is to the left of the Idea Building.</li>
+                            <li>The entrance remains locked at all times. Ring the black intercom or just call from your mobile. For new customers, ID will need to be displayed before entry.</li>
+                            <li>Photo ID will be photocopied (paper only record) when completing a trade due to <a href="https://www.dia.govt.nz/AML-CFT-High-value-dealers-Prohibited-cash-transactions-for-specified-high-value-goods" target="_blank" rel="noopener noreferrer">Section 67A of the AML/CFT Act</a>. </li>
                         </ul>
                         <blockquote class="mb-4" style="padding-top: 20px; ;font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
-                            For your safety and ours, valid photo identification is required.
+                            For your safety and ours, valid photo ID is required. However, we do not digitize this record.
                         </blockquote>
                     </div>
                 </div>
