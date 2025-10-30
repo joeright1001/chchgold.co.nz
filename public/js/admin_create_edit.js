@@ -386,7 +386,8 @@ document.addEventListener('DOMContentLoaded', () => {
             basePrice = weight * silverGramPrice * quantity;
         }
         
-        const finalPrice = basePrice * (1 - (percent / 100));
+        let finalPrice = basePrice * (1 - (percent / 100));
+        finalPrice = Math.max(0, finalPrice); // Ensure price is not negative
         
         livePriceSpan.textContent = finalPrice.toFixed(2);
         updateGrandTotal();
