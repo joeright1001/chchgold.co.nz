@@ -385,6 +385,32 @@ async function updateQuoteDetails(id, customerDetails, items) {
   }
 }
 
+/**
+ * Updates the settings for a given quote.
+ * @param {string} id - The UUID of the quote.
+ * @param {object} settings - The settings to update.
+ * @returns {Promise<void>}
+ */
+async function updateQuoteSettings(id, settings) {
+  const client = await pool.connect();
+  try {
+    const { showQuotedRate } = settings;
+    const query = `
+      UPDATE quotes 
+      SET 
+        show_quoted_rate = $1,
+        updated_at = NOW()
+      WHERE id = $2;
+    `;
+    await client.query(query, [showQuotedRate, id]);
+  } catch (error) {
+    logger.error(`Error updating quote settings for quote ${id}`, { error });
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   getNextQuoteNumber,
   createQuote,
@@ -394,5 +420,6 @@ module.exports = {
   updateQuoteItems,
   validateCustomerCredential,
   updateQuoteDetails,
+  updateQuoteSettings,
   ensureUniqueShortId, // Export for migration script
 };

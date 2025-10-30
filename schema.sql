@@ -14,7 +14,8 @@ CREATE TABLE quotes (
     spot_price_silver_ounce_nzd DECIMAL(10, 4),
     totals JSONB,
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    show_quoted_rate BOOLEAN DEFAULT FALSE
 );
 
 -- Create the quote_items table

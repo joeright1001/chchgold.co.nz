@@ -1,7 +1,16 @@
 </div> <!-- /container -->
     <footer class="footer mt-auto py-3 bg-dark text-white">
         <div class="container text-center">
-            <span><%= process.env.COMPANY_NAME %> - Quote System</span>
+            <img src="<%= process.env.COMPANY_LOGO_URL %>" alt="<%= process.env.COMPANY_NAME %> Logo" height="30" class="mb-2">
+            <br>
+                <div style="font-size: 8px; margin-top: 8px;">
+                <a href="tel:039257715" class="text-white text-decoration-none">(03) 925 7715</a> |
+                <a href="tel:0212451178" class="text-white text-decoration-none">021 245 1178</a> |
+                <a href="mailto:sales@christchurchgold.co.nz" class="text-white text-decoration-none">sales@christchurchgold.co.nz</a> |
+                <a href="https://t.me/m/UeYxKnaqYzMx" target="_blank" rel="noopener noreferrer" class="text-white text-decoration-none">Private Telegram</a> |
+                <a href="https://www.christchurchgold.co.nz/contact-us" target="_blank" rel="noopener noreferrer" class="text-white text-decoration-none">Book Appt</a>
+            </div>
+            <p class="mt-2 mb-0" style="font-size: 12px;">&copy; <%= new Date().getFullYear() %> <%= process.env.COMPANY_NAME %>. All Rights Reserved.</p>
         </div>
     </footer>
     <!-- Bootstrap JS -->

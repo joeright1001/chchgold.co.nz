@@ -124,10 +124,12 @@
                 
                 <div class="card mb-4" style="margin-top: 40px">
                     <div class="card-header">
-                        <h2>Market Price</h2>
+                        <h2 class="mb-0">Market Price</h2>
                     </div>
                     <div class="card-body">
-                        <p class="mb-4">All prices are based on the current market spot price. On the day of trading, the price will be updated based upon market activity and your quoted rate - the total price will change. We suggest trading early if you are happy with the price as the market is currently voliate.</p>
+                        <p class="mb-2">Our quoted price is derived from the global gold & silver <a href="https://investingnews.com/daily/resource-investing/precious-metals-investing/gold-investing/gold-spot-price/" target="_blank" rel="noopener noreferrer">spot prices</a>. We reference major trading markets <a href="https://www.ice.com/metals" target="_blank" rel="noopener noreferrer">ICE</a> and <a href="https://www.lbma.org.uk/prices-and-data/about-lbma-daily-auction-prices" target="_blank" rel="noopener noreferrer">LBMA</a> with consideration for futures (<a href="https://www.investopedia.com/terms/c/comex.asp" target="_blank" rel="noopener noreferrer">COMEX</a>).</p>
+                        <p class="mb-4">On the day of selling, your quote will be updated to reflect current global activity. If you are happy with the quoted price, we suggest trading earlier as a market shift can cause significant price changes.</p>
+                       <h5 class="mb-3" style="padding-bottom: 20px;">Spot Price</h5>
                         <div class="row">
                             <div class="col-6">
                                 <p class="mb-2">1 Troy Oz Gold:</p>
@@ -142,25 +144,34 @@
                                 <p class="mb-2">$<%= Number(quote.spot_price_silver_gram_nzd).toFixed(2) %> NZD</p>
                             </div>
                         </div>
-                        <p class="mt-2"><i>Source: <%= new Date(quote.updated_at).toLocaleString() %>: <a href="https://www.ice.com/iba/lbma-gold-silver-price" target="_blank" rel="noopener noreferrer">(LBMA)</a></i></p>
+                        <p class="mt-2"><i>Updated: <%= new Date(quote.updated_at).toLocaleString() %></i></p>
+                        <img src="/svg/lbma.svg" alt="LBMA Logo" style="height: 40px;"> <img src="/svg/ICE.svg" alt="ICE Logo" style="height: 40px;">
                     </div>
                 </div>
 
                 <div class="card mb-4" style="margin-top: 40px">
                     <div class="card-header">
-                        <h3>Quoted Rate</h3>
+                        <h3>Quoted Price</h3>
                     </div>
                     <div class="card-body">
-                        <p>This rate is tied to the quote number: <%= quote.quote_number %>. Your personal details have not be attached to this record so please refer to this number when speaking with a dealer.</p>
+                        <p>This price is tied to the quote number: <%= quote.quote_number %>. Your personal details have not been attached to this record so please refer to this number when speaking with a dealer.</p>
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Item Name</th>
-                                    <th>Metal Type</th>
-                                    <th>Qty</th>
-                                    <th>Weight</th>
-                                    <th>Quoted Rate</th>
-                                    <th>Total</th>
+                                    <% if (quote.show_quoted_rate) { %>
+                                        <th style="width: 30%;">Item Name</th>
+                                        <th style="width: 15%;">Metal Type</th>
+                                        <th style="width: 10%;">Qty</th>
+                                        <th style="width: 15%;">Weight</th>
+                                        <th style="width: 10%;">Quoted Rate</th>
+                                        <th style="width: 20%;">Total</th>
+                                    <% } else { %>
+                                        <th style="width: 35%;">Item Name</th>
+                                        <th style="width: 15%;">Metal Type</th>
+                                        <th style="width: 10%;">Qty</th>
+                                        <th style="width: 15%;">Weight</th>
+                                        <th style="width: 25%;">Total</th>
+                                    <% } %>
                                 </tr>
                             </thead>
                             <tbody>
@@ -204,16 +215,19 @@
                                         <td><%= item.metal_type %></td>
                                         <td><%= quantity %></td>
                                         <td><%= weightTypeMap[item.weight_type] || item.weight + ' g' %></td>
+                                        <% if (quote.show_quoted_rate) { %>
                                         <td><%= percent %>%</td>
+                                        <% } %>
                                         <td>$<%= rowTotal.toFixed(2) %></td>
                                     </tr>
                                 <% }); %>
                                 <tr class="fw-bold" style="border-top: 1px solid #dee2e6;">
-                                    <td colspan="5" class="text-end" style="padding-top: 40px;">Grand Total:</td>
+                                    <td colspan="<%= quote.show_quoted_rate ? 5 : 4 %>" class="text-end" style="padding-top: 40px;">Grand Total*:</td>
                                     <td style="padding-top: 40px;">$<%= grandTotal.toFixed(2) %></td>
                                 </tr>
                             </tbody>
                         </table>
+                        <p class="mb-3" style="font-size: 0.9rem;"><strong>*Prices will be updated on the day of selling in line with the current global spot price.</strong> The can result in your quoted value going up or down. If you are happy with the price, we suggest trading early to avoid a loss.</p>
                     </div>
                 </div>
                 
@@ -235,35 +249,41 @@
                             <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
                             <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">1</text>
                         </svg>
+                        <h5 class="mb-3" style="padding-bottom: 20px;">In-Person</h5>
                         <p class="mb-3"><strong>Make a time to trade face to face or discuss any questions.</strong> Our premises is convenient, light, friendly and secure. You will be our only client. Cash and bank transfer are available on the day.</p>
-                        <a href="https://christchurchgold.webflow.io/contact-us" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Book Time</a>
+                        <a href="https://www.christchurchgold.co.nz/sell-gold?sbq=<%= quote.quote_number %>" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Book Time</a>
                     </div>
                     <div class="col-md-4 text-start mb-4">
                         <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
                             <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
                             <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">2</text>
                         </svg>
+                        <h5 class="mb-3" style="padding-bottom: 20px;">By Post</h5>
                         <p class="mb-3"><strong>Post it.</strong> We will send you a secure, free, insured courier package. Note: limited to $20,000 in value.</p>
-                        <a href="https://christchurchgold.webflow.io/sell-gold" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Post It</a>
+                        <a href="https://www.christchurchgold.co.nz/sell-gold?sbq=<%= quote.quote_number %>" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Post It</a>
                     </div>
                     <div class="col-md-4 text-start mb-4">
                         <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
                             <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
                             <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">3</text>
                         </svg>
-                        <p class="mb-3"><strong>Mobility constraints?</strong> We are happy to work with clients to find a solution that fits.</p>
+                        <h5 class="mb-3" style="padding-bottom: 20px;">Mobility constraints?</h5>
+                        <p class="mb-3">If you cannot travel and are situated in the Canterbury area, we work with clients to find a solution that fits.</p>
                         <a href="tel:0392257715">(03) 925 7715</a>
                     </div>
                 </div>
                 
                 <hr class="my-4">
                 
-                <h5 class="mb-3" style="padding-bottom: 20px;">Contact Us</h5>
-                <p class="mb-2"><strong>Phone:</strong> <a href="tel:039257715">(03) 925 7715</a></p>
-                <p class="mb-2"><strong>Mobile:</strong> <a href="tel:0212451178">021 245 1178</a></p>
-                <p class="mb-2"><strong>Private Telegram:</strong> <a href="https://t.me/m/UeYxKnaqYzMx" target="_blank" rel="noopener noreferrer">link</a></p>
-                <p class="mb-2"><strong>Email:</strong> <a href="mailto:sales@christchurchgold.co.nz">sales@christchurchgold.co.nz</a></p>
-                <p class="mb-0"><strong>Book Appt:</strong> <a href="https://www.christchurchgold.co.nz/contact-us" target="_blank" rel="noopener noreferrer">link</a></p>
+             
+                <div class="contact-details" style="padding-bottom: 40px;" >
+                    <img src="<%= process.env.COMPANY_LOGO_URL %>" alt="<%= process.env.COMPANY_NAME %> Logo" style="width: 20%; margin-bottom: 15px;">
+                    <p class="mb-2"><strong>Phone:</strong> <a href="tel:039257715">(03) 925 7715</a></p>
+                    <p class="mb-2"><strong>Mobile:</strong> <a href="tel:0212451178">021 245 1178</a></p>
+                    <p class="mb-2"><strong>Private Telegram:</strong> <a href="https://t.me/m/UeYxKnaqYzMx" target="_blank" rel="noopener noreferrer">link</a></p>
+                    <p class="mb-2"><strong>Email:</strong> <a href="mailto:sales@christchurchgold.co.nz">sales@christchurchgold.co.nz</a></p>
+                <p class="mb-0"><strong>Book Appt:</strong> <a href="https://www.christchurchgold.co.nz/contact-us?sbq=<%= quote.quote_number %>" target="_blank" rel="noopener noreferrer">link</a></p>
+                </div>
             </div>
         </div>
         
@@ -283,12 +303,12 @@
             <div class="card-body">
                 <div class="card mb-4" style="margin-top: 20px">
                     <div class="card-header d-flex align-items-center">
-                        <h2 class="mb-0">Why Chch Gold?</h2>
+                        <h2 class="mb-0">Why Choose Us?</h2>
                         <!-- <img src="<%= process.env.COMPANY_LOGO_URL %>" alt="<%= process.env.COMPANY_NAME %> Logo" style="width: 12%; margin-left: 20px;"> -->
                     </div>
                     <div class="card-body">
                         <ul class="professional-list" >
-                            <li class="item-private" style="margin-top: 20px">We value your privacy. Paper only records used when possible or SHA-256 encrypted data & deletion of non-mandatory records after 14 days.</li>
+                            <li class="item-private" style="margin-top: 20px">We value your privacy. Paper only records are used when possible, all data SHA-256 encrypted, and deletion of non-mandatory records after 14 days.</li>
                             <li class="item-professional">Easy, professional with great pricing.</li>
                             <li class="item-local">Christchurch location, established reputation with international trading partners.</li>
                         </ul>
@@ -300,13 +320,13 @@
                         <h2>Location</h2>
                     </div>
                     <div class="card-body">
-                        <img src="https://cdn.prod.website-files.com/676bc93dc0d75728455c893b/67baa9b8300720200e378cb4_office_space.jpg" alt="Office Space" class="img-fluid rounded" style="width: 40%;">
+                        <img src="https://cdn.prod.website-files.com/676bc93dc0d75728455c893b/67baa9b8300720200e378cb4_office_space.jpg" alt="Office Space" class="img-fluid rounded" style="width: 50%; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#officeImageModal">
                     </div>
                         <div class="card-body">
                         <blockquote class="mb-4" style="font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
-                            Secure, friendly, light trading premises by appointment
+                            Secure, friendly, light, trading premises in Hornby by appointment
                         </blockquote>
-                        <a href="https://christchurchgold.webflow.io/contact-us" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000; margin-top: 20px;">Book a Time</a>
+                        <a href="https://www.christchurchgold.co.nz/sell-gold?sbq=<%= quote.quote_number %>" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000; margin-top: 20px;">Book a Time</a>
                     </div>
                 </div>
                 <div class="card mb-4" style="margin-top: 40px">
@@ -315,49 +335,54 @@
                     </div>
                     <div class="card-body">
                         <ul class="mb-0" style="line-height: 2;">
-                            <li>All payments are made via direct bank transfer to your nominated New Zealand bank account.</li>
-                            <li>Payments are typically processed within 2-24 hours of agreement.</li>
-                            <li>Cash payments are avaialabe however limited to $10,000 per person per day.</li>
+                            <li>Bank, Cash* and in some cases digital currency* payment options are available.</li>
+                            <li>Cash is restricted to $10,000 per day per person due to <a href="https://www.dia.govt.nz/AML-CFT-High-value-dealers-Prohibited-cash-transactions-for-specified-high-value-goods" target="_blank" rel="noopener noreferrer">Section 67A of the AML/CFT Act</a>.</li>
+                            <li>Bank payments are typically processed within 2-24 hours of agreement.</li>
                         </ul>
+                        <p class="mt-2"><small>*At our discretion, may require additional information and may attract additional fees.</small></p>
+                            <blockquote class="mb-4" style="font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
+                            For security, funds are held offsite and need to be arranged ahead of time.
+                        </blockquote>
                     </div>
                 </div>
-                <div class="card mb-4" style="margin-top: 40px">
+                 <div class="card mb-4" style="margin-top: 40px">
                     <div class="card-header">
-                        <h2>Key Condishions</h2>
+                        <h2>Security</h2>
                     </div>
                     <div class="card-body">
-                        <p class="mb-0">Placeholder text for the fourth new section.</p>
-                    </div>
-                </div>
-                <div class="card mb-4" style="margin-top: 40px">
-                    <div class="card-header">
-                        <h2>Our Buying Process</h2>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-3">Christchurch Gold buys precious metals, regardless of where they were purchased.</p>
-                        <p class="mb-3">Here is the process, which we aim to make as simple as possible:</p>
-                        <p class="mb-2">Simply call or email us with details of what you would like to sell.</p>
-                        <p class="mb-2">We'll give you a price indication of what Christchurch Gold can offer, either as a percentage below spot or as a NZD value.</p>
-                        <p class="mb-2">You may wish to obtain another quote elsewhere – always come back to us before you make your final decision to sell.</p>
-                        <p class="mb-2">If you decide to go ahead, we'll need to see the coins or bars. You can either make an appointment to come into our office personally or we will send a courier bag so you can return the metal, at our cost, fully insured.</p>
-                        <p class="mb-2">Once we physically check the coins or bars for purity, we will give you a firm price based on the spot price at that moment. This will be the contract price if you agree to sell.</p>
-                        <p class="mb-0">Payment will be made to your nominated bank account within 2-24 hours.</p>
-                    </div>
-                </div>
+                        <ul class="mb-0" style="line-height: 2;">
+                            <li><b>Locked Premises:</b> For security reasons, our doors remain locked at all times. All viewings and appointments must be arranged in advance.</li>
+                            <li><b>Visitor Numbers:</b> Entry is limited to the agreed number of attendees ahead of time. Additional members will not be provided admission.</li>
+                            <li><b>Identification:</b> First-time customers will need to display a valid photo identification before entering to confirm the correct appointment.</li>
+                            <li><b>Appearance:</b> To assist with security, we ask that visitors remove sunglasses, caps, or hooded clothing, or any face covering before entry.</li>
+                            <li><b>Valuables:</b> All cash and bullion assets other than what is specifically allocated for your trade are stored off-site in a time-delay vault in the City Centre.</li>
+                            <li><b>Cameras:</b> Multiple high-resolution cameras are onsite and remotely monitored. Footage is permanently deleted after 14 days; however, in case of criminal activity, all information is immediately made available to the police.</li>
 
-                <div class="card mb-4" style="margin-top: 40px">
-                    <div class="card-header">
-                        <h2>What We Buy</h2>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-0">We purchase gold and silver bullion coins, bars, and rounds from any reputable mint or refinery. Items must be in good condition with verifiable purity.</p>
+                        </ul>
+                        <blockquote class="mb-4" style="padding-top: 20px; ;font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
+                            For your safety and ours, valid photo identification is required.
+                        </blockquote>
                     </div>
                 </div>
-
-                
+              
             </div>
         </div>
     </div>
+    <!-- Office Image Modal -->
+    <div class="modal fade" id="officeImageModal" tabindex="-1" aria-labelledby="officeImageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="officeImageModalLabel">Our Office</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="https://cdn.prod.website-files.com/676bc93dc0d75728455c893b/67baa9b8300720200e378cb4_office_space.jpg" alt="Office Space" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
