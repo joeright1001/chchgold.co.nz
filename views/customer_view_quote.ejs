@@ -307,16 +307,16 @@
                         <div class="row">
                             <div class="col-md-4 text-start mb-4">
                                 <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
-                            <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
+                            <circle cx="20" cy="20" r="18" fill="#FFC800 " stroke="#FFC800 " stroke-width="2"/>
                             <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">1</text>
                         </svg>
                         <h5 class="mb-3" style="padding-bottom: 20px;">In-Person</h5>
                         <p class="mb-3"><strong>Make a time to trade face to face or discuss any questions.</strong> Our premises is convenient, light, friendly and secure. You will be our only client. Cash and bank transfer are available on the day.</p>
-                        <a href="https://www.christchurchgold.co.nz/sell-gold?sbq=<%= quote.quote_number %>" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Book Time</a>
+                        <a href="https://www.christchurchgold.co.nz/sell-gold?sbq=<%= quote.quote_number %>" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Book a Time</a>
                     </div>
                     <div class="col-md-4 text-start mb-4">
                         <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
-                            <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
+                            <circle cx="20" cy="20" r="18" fill="#FFC800" stroke="#FFC800" stroke-width="2"/>
                             <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">2</text>
                         </svg>
                         <h5 class="mb-3" style="padding-bottom: 20px;">By Post</h5>
@@ -325,7 +325,7 @@
                     </div>
                     <div class="col-md-4 text-start mb-4">
                         <svg width="40" height="40" viewBox="0 0 40 40" class="mb-3">
-                            <circle cx="20" cy="20" r="18" fill="#0d6efd" stroke="#0d6efd" stroke-width="2"/>
+                            <circle cx="20" cy="20" r="18" fill="#FFC800" stroke="#FFC800" stroke-width="2"/>
                             <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">3</text>
                         </svg>
                         <h5 class="mb-3" style="padding-bottom: 20px;">Mobility constraints?</h5>
@@ -475,5 +475,21 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <div style="height: 60px;"></div>
+    <footer class="footer mt-auto py-3 bg-dark text-white">
+        <div class="container text-center">
+            <img src="<%= process.env.COMPANY_LOGO_URL %>" alt="<%= process.env.COMPANY_NAME %> Logo" height="30" class="mb-2">
+            <br>
+                <div style="font-size: 8px; margin-top: 8px;">
+                <a href="tel:039257715" class="text-white text-decoration-none">(03) 925 7715</a> |
+                <a href="tel:0212451178" class="text-white text-decoration-none">021 245 1178</a> |
+                <a href="mailto:sales@christchurchgold.co.nz" class="text-white text-decoration-none">sales@christchurchgold.co.nz</a> |
+                <a href="https://t.me/m/UeYxKnaqYzMx" target="_blank" rel="noopener noreferrer" class="text-white text-decoration-none">Private Telegram</a> |
+                <a href="https://www.christchurchgold.co.nz/contact-us" target="_blank" rel="noopener noreferrer" class="text-white text-decoration-none">Book Appt</a>
+            </div>
+            <p class="mt-2 mb-0" style="font-size: 12px;">&copy; <%= new Date().getFullYear() %> <%= process.env.COMPANY_NAME %>. All Rights Reserved.</p>
+        </div>
+    </footer>
 </body>
 </html>
