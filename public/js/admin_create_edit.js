@@ -316,6 +316,12 @@ document.addEventListener('DOMContentLoaded', () => {
         quantityInput.addEventListener('input', () => {
             calculateItemPrice(row);
         });
+
+        // Percent change
+        const percentInput = row.querySelector('.percent-input');
+        percentInput.addEventListener('input', () => {
+            calculateItemPrice(row);
+        });
     }
 
     function updateRemoveButtonVisibility() {
@@ -363,22 +369,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const metalType = row.dataset.metalType;
         const weightInput = row.querySelector('.weight-input');
         const quantityInput = row.querySelector('.quantity-input');
+        const percentInput = row.querySelector('.percent-input');
         const livePriceSpan = row.querySelector('.live-price');
         
         const weight = parseFloat(weightInput.value) || 0;
         const quantity = parseInt(quantityInput.value) || 1;
+        const percent = parseFloat(percentInput.value) || 0;
         
         const goldGramPrice = parseFloat(card.dataset.goldGramNzd) || 0;
         const silverGramPrice = parseFloat(card.dataset.silverGramNzd) || 0;
         
-        let price = 0;
+        let basePrice = 0;
         if (metalType === 'Gold') {
-            price = weight * goldGramPrice * quantity;
+            basePrice = weight * goldGramPrice * quantity;
         } else if (metalType === 'Silver') {
-            price = weight * silverGramPrice * quantity;
+            basePrice = weight * silverGramPrice * quantity;
         }
         
-        livePriceSpan.textContent = price.toFixed(2);
+        const finalPrice = basePrice * (1 + (percent / 100));
+        
+        livePriceSpan.textContent = finalPrice.toFixed(2);
         updateGrandTotal();
     }
 
