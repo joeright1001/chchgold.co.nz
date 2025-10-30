@@ -46,3 +46,28 @@
     flex: 0 0 17%;
     max-width: 17%;
 }
+
+.grand-total-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.grand-total-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+.spot-price-display {
+    font-size: 1rem;
+}
+
+.spot-price-display .currency-unit {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.last-updated-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+}

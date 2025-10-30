@@ -1,3 +1,30 @@
+/**
+ * SERVER.JS - Main Application Entry Point
+ * 
+ * This is the core Express server that orchestrates the entire application:
+ * 
+ * KEY FUNCTIONS:
+ * 1. Configuration - Sets up Express, sessions, middleware
+ * 2. Route Mounting - Connects route files at specific paths
+ * 3. Error Handling - Catches and logs application errors
+ * 
+ * ROUTE STRUCTURE:
+ * - / → Splash page (splash.ejs)
+ * - /quote → Customer routes (quoteRoutes.js) - login, view quotes
+ * - /admin/create-edit → Unified quote management (createEditRoutes.js)
+ * - /admin → Dashboard and settings (adminRoutes.js)
+ * 
+ * MIDDLEWARE APPLIED:
+ * - express.static → Serves CSS, JS, images from /public
+ * - express.urlencoded → Parses form data
+ * - express.json → Parses JSON requests
+ * - express-session → Manages customer authentication sessions
+ * - staffAuth → Protects admin routes (applied at mount point)
+ * 
+ * IMPORTANT: Route order matters! More specific routes (/admin/create-edit) must be
+ * mounted BEFORE generic routes (/admin/:id) to prevent incorrect matching.
+ */
+
 require("dotenv").config();
 process.env.TZ = 'Pacific/Auckland';
 
@@ -43,6 +70,7 @@ app.use(session({
 // Import routes
 const quoteRoutes = require('./src/routes/quoteRoutes');
 const adminRoutes = require('./src/routes/admin/adminRoutes');
+const createEditRoutes = require('./src/routes/admin/createEditRoutes');
 const { staffAuth } = require('./src/middleware/auth');
 
 // Root route - displays splash page and redirects
@@ -54,7 +82,8 @@ app.get('/', (req, res) => {
 // Authentication is handled internally within the quote router
 app.use('/quote', quoteRoutes);
 
-// Admin routes - applying auth to all admin routes
+// Admin routes - mount create-edit routes BEFORE generic admin routes
+app.use('/admin/create-edit', staffAuth, createEditRoutes);
 app.use('/admin', staffAuth, adminRoutes);
 
 // Request logging middleware

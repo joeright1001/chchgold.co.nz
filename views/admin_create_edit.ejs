@@ -1,0 +1,281 @@
+<%- include('partials/header', { title: isEditMode ? `Edit Quote - ${quote.quote_number}` : 'Create New Quote' }) %>
+
+<link rel="stylesheet" href="/css/admin_create_edit.css">
+<script src="/js/contact_validation.js"></script>
+
+<% if (isNewQuote && isEditMode) { %>
+<div class="alert alert-success alert-dismissible fade show" role="alert" id="new-quote-banner">
+    <strong>New Sell Bullion Quote Created</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<% } %>
+
+<% if (isUpdated && isEditMode) { %>
+<div class="alert alert-info alert-dismissible fade show" role="alert" id="updated-quote-banner">
+    <strong>Quote Successfully Updated</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<% } %>
+
+<div class="card" id="admin-create-edit-card"
+    data-quote-id="<%= isEditMode ? quote.id : '' %>" 
+    data-gold-gram-nzd="<%= isEditMode ? (Number(quote.spot_price_gold_gram_nzd) || 0) : 0 %>" 
+    data-silver-gram-nzd="<%= isEditMode ? (Number(quote.spot_price_silver_gram_nzd) || 0) : 0 %>">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h1><%= isEditMode ? `Edit Quote: ${quote.quote_number}` : 'Create New Bullion Quote' %></h1>
+    </div>
+    <div class="card-body">
+        <% if (isEditMode) { %>
+        <!-- Status and Actions Section (EDIT mode only) -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2>Date Created & Status</h2>
+            </div>
+            <div class="card-body">
+                <p><strong>Status:</strong> <span class="badge bg-<%= quote.status === 'active' ? 'success' : 'danger' %>"><%= quote.status %></span></p>
+                <p><strong>Date Created:</strong> <%= new Date(quote.created_at).toLocaleString() %></p>
+                <% if (quote.status === 'active') { %>
+                    <form id="expire-form" action="/admin/create-edit/<%= quote.id %>/expire" method="POST">
+                        <button type="submit" class="btn btn-warning">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            Mark as Expired
+                        </button>
+                    </form>
+                <% } %>
+            </div>
+        </div>
+        <% } %>
+
+        <form action="<%= isEditMode ? `/admin/create-edit/${quote.id}` : '/admin/create-edit' %>" method="POST" id="admin-create-edit-form">
+            <!-- Customer Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <button class="btn btn-link text-decoration-none text-dark w-100 text-start p-0" type="button" data-bs-toggle="collapse" data-bs-target="#contactDetailsCollapse" aria-expanded="false" aria-controls="contactDetailsCollapse">
+                        <h2 class="mb-0">Contact Details <small class="text-muted">(click to expand)</small></h2>
+                    </button>
+                </div>
+                <div class="card-body collapse <%= !isEditMode ? 'show' : '' %>" id="contactDetailsCollapse">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="firstName" class="form-label">First Name:</label>
+                            <input type="text" class="form-control" id="firstName" name="customerDetails[firstName]" value="<%= isEditMode ? quote.customer_first_name : '' %>">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="surname" class="form-label">Surname:</label>
+                            <input type="text" class="form-control" id="surname" name="customerDetails[surname]" value="<%= isEditMode ? quote.customer_surname : '' %>">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="mobile" class="form-label">Mobile: <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="mobile" name="customerDetails[mobile]" value="<%= isEditMode ? quote.customer_mobile : '' %>">
+                            <div class="invalid-feedback" id="mobile-error"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email: <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="customerDetails[email]" value="<%= isEditMode ? quote.customer_email : '' %>">
+                            <div class="invalid-feedback" id="email-error"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <small class="text-muted">* At least one of Mobile or Email is required</small>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="zohoId" class="form-label">Zoho ID:</label>
+                            <input type="text" class="form-control" id="zohoId" name="customerDetails[zohoId]" value="<%= isEditMode ? quote.zoho_id : '' %>">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <% if (isEditMode) { %>
+            <!-- Customer URL Panel (EDIT mode only) -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Customer URL</h2>
+                </div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="customer-url" value="<%= customerUrl %>" readonly>
+                        <button class="btn btn-outline-secondary" type="button" id="copy-url-btn">Copy</button>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Settings Panel -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Settings</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="showQuotedRate" name="showQuotedRate" <%= (isEditMode && quote.show_quoted_rate) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="showQuotedRate">
+                            Show Quoted Rate to Customer
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Price Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Spot Price</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row spot-price-display">
+                        <div class="col-6">
+                            <p>1 Troy Oz Gold:</p>
+                            <p>1 Troy Oz Silver:</p>
+                            <p>1 gram Gold:</p>
+                            <p>1 gram Silver:</p>
+                            <% 
+                                const lastUpdated = isEditMode && quote.updated_at 
+                                    ? new Date(quote.updated_at).toLocaleString() 
+                                    : 'Not yet loaded';
+                            %>
+                            <p class="mt-3 last-updated-text"><i>Last Updated: <span id="last-updated"><%= lastUpdated %></span></i></p>
+                            <div id="price-error" class="text-danger mt-2"></div>
+                            <div class="mt-3">
+                                <button type="button" id="<%= isEditMode ? 'refresh-price-btn' : 'get-live-price-btn' %>" class="btn btn-info">
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                    Update Live Price
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <% 
+                                const goldOz = isEditMode && quote.spot_price_gold_ounce_nzd 
+                                    ? Number(quote.spot_price_gold_ounce_nzd).toFixed(2) 
+                                    : '-';
+                                const silverOz = isEditMode && quote.spot_price_silver_ounce_nzd 
+                                    ? Number(quote.spot_price_silver_ounce_nzd).toFixed(2) 
+                                    : '-';
+                                const goldG = isEditMode && quote.spot_price_gold_gram_nzd 
+                                    ? Number(quote.spot_price_gold_gram_nzd).toFixed(2) 
+                                    : '-';
+                                const silverG = isEditMode && quote.spot_price_silver_gram_nzd 
+                                    ? Number(quote.spot_price_silver_gram_nzd).toFixed(2) 
+                                    : '-';
+                            %>
+                            <p>$<span id="gold-oz-price"><%= goldOz %></span> <span class="currency-unit">NZD</span></p>
+                            <p>$<span id="silver-oz-price"><%= silverOz %></span> <span class="currency-unit">NZD</span></p>
+                            <p>$<span id="gold-g-price"><%= goldG %></span> <span class="currency-unit">NZD</span></p>
+                            <p>$<span id="silver-g-price"><%= silverG %></span> <span class="currency-unit">NZD</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Items Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Items</h3>
+                </div>
+                <div class="card-body">
+                    <div id="items-container">
+                        <% 
+                        const itemsToShow = (isEditMode && items && items.length > 0) ? items : [{}];
+                        itemsToShow.forEach((item, i) => { 
+                        %>
+                            <div class="mb-3 p-2 border rounded item-row" data-metal-type="<%= item.metal_type || 'Gold' %>" data-row-index="<%= i %>">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="mb-0">Item <span class="item-number"><%= i + 1 %></span></h5>
+                                    <a href="#" class="remove-item-btn text-danger" style="<%= itemsToShow.length === 1 ? 'display: none;' : '' %>">Remove</a>
+                                </div>
+                                <input type="hidden" name="items[<%= i %>][id]" value="<%= item.id || '' %>" class="item-id-input">
+                                <input type="hidden" name="items[<%= i %>][weightType]" id="weightTypeHidden<%= i %>" value="<%= item.weight_type || '' %>" class="weight-type-hidden">
+                                <div class="item-details-row align-items-center">
+                                <div class="col-item-name">
+                                    <label class="form-label">Item Name:</label>
+                                    <input type="text" class="form-control item-name-input" name="items[<%= i %>][name]" value="<%= item.item_name || '' %>">
+                                </div>
+                                <div class="col-metal-type">
+                                    <label class="form-label">Metal Type:</label>
+                                    <select class="form-select metal-type-select" name="items[<%= i %>][metalType]">
+                                        <option value="Gold" <%= (item.metal_type === 'Gold' ? 'selected' : '') %>>Gold</option>
+                                        <option value="Silver" <%= (item.metal_type === 'Silver' ? 'selected' : '') %>>Silver</option>
+                                    </select>
+                                </div>
+                                <div class="col-qty">
+                                    <label class="form-label">Qty:</label>
+                                    <input type="number" class="form-control quantity-input" name="items[<%= i %>][quantity]" value="<%= item.quantity || 1 %>" min="1">
+                                </div>
+                                <div class="col-percent">
+                                    <label class="form-label">%:</label>
+                                    <input type="number" class="form-control percent-input" name="items[<%= i %>][percent]" value="<%= item.percent || '' %>" step="0.01" min="0">
+                                </div>
+                                <div class="col-weight-type">
+                                    <label class="form-label">Weight Type:</label>
+                                    <select class="form-select weight-type-select" data-index="<%= i %>">
+                                        <option value="">Select...</option>
+                                        <option value="1" <%= (item.weight_type === '1' ? 'selected' : '') %>>1g</option>
+                                        <option value="5" <%= (item.weight_type === '5' ? 'selected' : '') %>>5g</option>
+                                        <option value="10" <%= (item.weight_type === '10' ? 'selected' : '') %>>10g</option>
+                                        <option value="20" <%= (item.weight_type === '20' ? 'selected' : '') %>>20g</option>
+                                        <option value="50" <%= (item.weight_type === '50' ? 'selected' : '') %>>50g</option>
+                                        <option value="1.555175" <%= (item.weight_type === '1.555175' ? 'selected' : '') %>>1/20 oz</option>
+                                        <option value="3.11035" <%= (item.weight_type === '3.11035' ? 'selected' : '') %>>1/10 oz</option>
+                                        <option value="15.55175" <%= (item.weight_type === '15.55175' ? 'selected' : '') %>>1/2 oz</option>
+                                        <option value="31.1035" <%= (item.weight_type === '31.1035' ? 'selected' : '') %>>1 oz</option>
+                                        <option value="62.207" <%= (item.weight_type === '62.207' ? 'selected' : '') %>>2 oz</option>
+                                        <option value="155.5175" <%= (item.weight_type === '155.5175' ? 'selected' : '') %>>5 oz</option>
+                                        <option value="311.035" <%= (item.weight_type === '311.035' ? 'selected' : '') %>>10 oz</option>
+                                        <option value="1000" <%= (item.weight_type === '1000' ? 'selected' : '') %>>1 Kgs</option>
+                                    </select>
+                                </div>
+                                <div class="col-weight">
+                                    <label class="form-label">Weight (g):</label>
+                                    <input type="number" class="form-control weight-input" name="items[<%= i %>][weight]" value="<%= item.weight || '' %>" step="any" placeholder="0.0000" min="0">
+                                </div>
+                                <div class="col-live-price">
+                                    <label>Live Price:</label>
+                                    <% 
+                                        let livePrice = 0;
+                                        if (isEditMode && item.weight) {
+                                            const quantity = item.quantity || 1;
+                                            if (item.metal_type === 'Gold') {
+                                                livePrice = item.weight * quote.spot_price_gold_gram_nzd * quantity;
+                                            } else if (item.metal_type === 'Silver') {
+                                                livePrice = item.weight * quote.spot_price_silver_gram_nzd * quantity;
+                                            }
+                                        }
+                                    %>
+                                    <p><strong>$<span class="live-price"><%= livePrice.toFixed(2) %></span> NZD</strong></p>
+                                </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                    
+                    <!-- Add Item Button -->
+                    <div class="mt-3 mb-3">
+                        <a href="#" id="add-item-btn" class="text-success">+ Add Item</a>
+                    </div>
+                    
+                    <div class="row justify-content-end" style="margin-top: 80px;">
+                        <div class="col-md-auto d-flex align-items-baseline">
+                            <p class="grand-total-title me-3">Grand Total:</p>
+                            <p class="grand-total-value">$<span id="grand-total">0.00</span> <span class="currency-unit">NZD</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <%= isEditMode ? 'Update Quote' : 'Create Quote' %>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/admin_create_edit.js"></script>
+
+<%- include('partials/footer') %>

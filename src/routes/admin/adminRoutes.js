@@ -1,3 +1,20 @@
+/**
+ * ADMIN ROUTES - Dashboard & Settings Management
+ * 
+ * This file handles the core admin functionality:
+ * 
+ * KEY FUNCTIONS:
+ * 1. Dashboard Display - Shows list of all quotes with search functionality
+ * 2. Settings Management - Updates spot normalisation offset for pricing
+ * 
+ * WORKFLOW:
+ * - Admin accesses /admin → Displays dashboard with all quotes
+ * - Admin clicks "View" on quote → Redirects to /admin/create-edit/:id (handled by createEditRoutes.js)
+ * - Admin updates settings → POST /admin/settings/update → Updates database → Returns JSON response
+ * 
+ * NOTE: Individual quote operations (create/edit/expire) are handled by createEditRoutes.js
+ */
+
 const express = require('express');
 const router = express.Router();
 const pool = require('../../config/database');
@@ -66,75 +83,6 @@ router.post('/settings/update', async (req, res) => {
       success: false, 
       error: 'Failed to update settings.' 
     });
-  }
-});
-
-// GET /admin/:id - Displays the full admin view for a single quote
-router.get('/:id', async (req, res) => {
-  try {
-    const quoteData = await quoteService.getQuoteById(req.params.id);
-    if (!quoteData) {
-      return res.status(404).send('Quote not found');
-    }
-    // Use short_id for customer URL (much shorter and easier)
-    // Force HTTPS in production
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
-    const customerUrl = `${protocol}://${req.get('host')}/quote/${quoteData.quote.short_id}`;
-    
-    // Check if this is a newly created quote
-    const isNewQuote = req.query.new === 'true';
-    
-    res.render('admin_view_quote', {
-      quote: quoteData.quote,
-      items: quoteData.items,
-      customerUrl: customerUrl,
-      isNewQuote: isNewQuote,
-    });
-  } catch (error) {
-    logger.error(`Error fetching quote for admin view (ID: ${req.params.id})`, { error: error.message });
-    res.status(500).send('Server error');
-  }
-});
-
-// POST /admin/:id - Handles the form submission for updating a quote
-router.post('/:id', async (req, res) => {
-  try {
-    const { customerDetails, items, showQuotedRate } = req.body;
-    // Ensure customerDetails is an object, even if the form sends it differently
-    const details = customerDetails || {
-      firstName: req.body['customerDetails[firstName]'],
-      surname: req.body['customerDetails[surname]'],
-      mobile: req.body['customerDetails[mobile]'],
-      email: req.body['customerDetails[email]'],
-      zohoId: req.body['customerDetails[zohoId]'],
-    };
-    
-    const settings = {
-      showQuotedRate: showQuotedRate === 'on'
-    };
-
-    await Promise.all([
-      quoteService.updateQuoteDetails(req.params.id, details, items),
-      quoteService.updateQuoteSettings(req.params.id, settings)
-    ]);
-
-    res.redirect(`/admin/${req.params.id}`);
-  } catch (error) {
-    logger.error(`Error updating quote ${req.params.id}`, { error: error.message });
-    res.status(500).send('Server error');
-  }
-});
-
-// POST /admin/:id/expire - Marks a quote as expired
-router.post('/:id/expire', async (req, res) => {
-  try {
-    await quoteService.updateQuoteStatus(req.params.id, 'expired');
-    logger.info(`Quote ${req.params.id} marked as expired by admin.`);
-    // Add a cache-busting query parameter to the redirect URL
-    res.redirect(`/admin/${req.params.id}?updated=true&t=${Date.now()}`);
-  } catch (error) {
-    logger.error(`Error expiring quote ${req.params.id}`, { error: error.message });
-    res.status(500).send('Server error');
   }
 });
 

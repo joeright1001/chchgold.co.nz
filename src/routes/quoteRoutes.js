@@ -1,3 +1,28 @@
+/**
+ * QUOTE ROUTES - Customer Access & API Endpoints
+ * 
+ * This file handles customer-facing quote access and admin API endpoints:
+ * 
+ * KEY FUNCTIONS:
+ * 1. Customer Login - Authenticate customers to view their quotes
+ * 2. Customer Quote View - Display quotes to authenticated customers
+ * 3. Live Price API - Provide current metal prices (used by admin_create_edit.js)
+ * 4. Refresh Price API - Update quote with latest prices (used by admin_create_edit.js)
+ * 
+ * WORKFLOW:
+ * CUSTOMER ACCESS:
+ * - Customer visits /quote/:shortId → Not authenticated → Redirects to /quote/:shortId/login
+ * - Customer enters mobile/email → POST /quote/:shortId/login → Validates credential
+ * - If valid → Stores shortId in session → Redirects to /quote/:shortId → Shows quote
+ * 
+ * ADMIN API ENDPOINTS:
+ * - Admin page loads → Calls GET /quote/get-live-prices → Returns current metal prices
+ * - Admin clicks "Update Live Price" → POST /quote/edit/:id/refresh-price → Updates quote prices
+ * 
+ * NOTE: Customer routes use short_id (e.g., "ABC123") instead of UUID for cleaner URLs
+ * NOTE: Admin API endpoints require staffAuth middleware
+ */
+
 const express = require('express');
 const router = express.Router();
 const quoteService = require('../services/quoteService');
@@ -24,41 +49,7 @@ router.get('/get-live-prices', staffAuth, async (req, res) => {
   }
 });
 
-// STAFF ROUTE: Renders the new quote creation page.
-// This specific path '/create' is defined BEFORE the dynamic '/:id' path.
-router.get('/create', staffAuth, (req, res) => {
-  res.render('create_quote');
-});
-
-// STAFF ROUTE: Handles the form submission for a new quote.
-router.post('/create', staffAuth, async (req, res) => {
-  try {
-    const { customerDetails, items } = req.body;
-    if (!customerDetails) {
-      return res.status(400).json({ error: 'Missing customer details.' });
-    }
-    const filledItems = (items || []).filter(item => item && item.name && item.name.trim() !== '');
-    const newQuote = await quoteService.createQuote(customerDetails, filledItems);
-    res.redirect(`/admin/${newQuote.id}?new=true`);
-  } catch (error) {
-    logger.error('Error in POST /quote/create', { error: error.message });
-    res.status(500).json({ error: 'Failed to create quote' });
-  }
-});
-
-// STAFF ROUTE: Handles the form submission for updating a quote's items.
-router.post('/edit/:id', staffAuth, async (req, res) => {
-  try {
-    const { items } = req.body;
-    await quoteService.updateQuoteItems(req.params.id, items);
-    res.redirect(`/quote/edit/${req.params.id}`);
-  } catch (error) {
-    logger.error(`Error updating items for quote ${req.params.id}`, { error: error.message });
-    res.status(500).json({ error: 'Failed to update items' });
-  }
-});
-
-// STAFF ROUTE: Handles the "Refresh Live Price" button click.
+// STAFF ROUTE: Handles the "Refresh Live Price" button click (used by admin_create_edit page).
 router.post('/edit/:id/refresh-price', staffAuth, async (req, res) => {
   try {
     const updatedQuote = await quoteService.updateQuotePrices(req.params.id);
@@ -66,28 +57,6 @@ router.post('/edit/:id/refresh-price', staffAuth, async (req, res) => {
   } catch (error) {
     logger.error(`Error refreshing price for quote ${req.params.id}`, { error: error.message });
     res.status(500).json({ error: 'Failed to refresh prices' });
-  }
-});
-
-// STAFF ROUTE: Renders the "in-person" edit view.
-router.get('/edit/:id', staffAuth, async (req, res) => {
-  try {
-    const quoteData = await quoteService.getQuoteById(req.params.id);
-    if (!quoteData) {
-      return res.status(404).send('Quote not found');
-    }
-    // Use short_id for customer URL (much shorter and easier)
-    // Force HTTPS in production
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
-    const customerUrl = `${protocol}://${req.get('host')}/quote/${quoteData.quote.short_id}`;
-    res.render('edit_quote', {
-      quote: quoteData.quote,
-      items: quoteData.items,
-      customerUrl: customerUrl,
-    });
-  } catch (error) {
-    logger.error(`Error fetching quote for edit view (ID: ${req.params.id})`, { error: error.message });
-    res.status(500).send('Server error');
   }
 });
 
@@ -101,19 +70,23 @@ router.post('/:shortId/login', async (req, res) => {
   try {
     const { shortId } = req.params;
     const { credential } = req.body;
-    
-    // Get quote by short_id first to get the UUID
+
+    // Check for admin password first
+    const isAdmin = credential === process.env.ADMIN_PASSWORD;
+
+    // Get quote by short_id to get the UUID
     const quoteData = await quoteService.getQuoteByShortId(shortId);
     if (!quoteData) {
-      return res.render('customer_login', { 
-        quoteId: shortId, 
-        error: 'Quote not found.' 
+      return res.render('customer_login', {
+        quoteId: shortId,
+        error: 'Quote not found.',
       });
     }
-    
-    const isValid = await quoteService.validateCustomerCredential(quoteData.quote.id, credential);
 
-    if (isValid) {
+    // Validate customer credential OR check if it's an admin
+    const isValidCustomer = await quoteService.validateCustomerCredential(quoteData.quote.id, credential);
+
+    if (isValidCustomer || isAdmin) {
       req.session.authenticatedQuoteId = shortId; // Store short_id in session
       // Save session before redirect to ensure it's persisted
       req.session.save((err) => {
@@ -124,9 +97,9 @@ router.post('/:shortId/login', async (req, res) => {
         res.redirect(`/quote/${shortId}`);
       });
     } else {
-      res.render('customer_login', { 
-        quoteId: shortId, 
-        error: 'Invalid mobile number or email. Please try again.' 
+      res.render('customer_login', {
+        quoteId: shortId,
+        error: 'Invalid mobile number, email, or password. Please try again.',
       });
     }
   } catch (error) {
