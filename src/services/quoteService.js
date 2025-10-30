@@ -72,13 +72,24 @@ async function createQuote(customerDetails, items) {
     // 1. Generate unique short ID
     const shortId = await ensureUniqueShortId();
 
-    // 2. Get the next quote number
-    const quoteNumberResult = await client.query(
+    // 2. Get the next quote number - initialize if not found
+    let quoteNumberResult = await client.query(
       "UPDATE sequences SET value = value + 1 WHERE name = 'quote_number' RETURNING value"
     );
+    
+    // If sequence doesn't exist, create it starting at 253
     if (quoteNumberResult.rows.length === 0) {
-      throw new Error('Quote number sequence not found.');
+      await client.query(
+        "CREATE TABLE IF NOT EXISTS sequences (name TEXT PRIMARY KEY, value INTEGER NOT NULL)"
+      );
+      await client.query(
+        "INSERT INTO sequences (name, value) VALUES ('quote_number', 253) ON CONFLICT (name) DO NOTHING"
+      );
+      quoteNumberResult = await client.query(
+        "UPDATE sequences SET value = value + 1 WHERE name = 'quote_number' RETURNING value"
+      );
     }
+    
     const nextValue = quoteNumberResult.rows[0].value;
     const quoteNumber = `SBQ-${String(nextValue).padStart(6, '0')}`;
 
