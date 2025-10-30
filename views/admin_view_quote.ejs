@@ -16,7 +16,6 @@
     data-silver-gram-nzd="<%= Number(quote.spot_price_silver_gram_nzd) || 0 %>">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h1>Edit Quote: <%= quote.quote_number %></h1>
-        <a href="/admin" class="btn btn-secondary">Back to Dashboard</a>
     </div>
     <div class="card-body">
         <%- include('partials/_status_and_actions', { quote: quote }) %>

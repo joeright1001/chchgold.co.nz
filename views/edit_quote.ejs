@@ -8,7 +8,6 @@
     data-silver-gram-nzd="<%= Number(quote.spot_price_silver_gram_nzd) || 0 %>">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h1>Quote:  <%= quote.quote_number %></h1>
-        <a href="/admin" class="btn btn-secondary">Back to Dashboard</a>
     </div>
     <div class="card-body">
         <!-- Customer URL Panel -->
@@ -25,7 +24,7 @@
             </div>
         </div>
 
-        <form action="/admin/<%= quote.id %>" method="POST">
+        <form action="/quote/edit/<%= quote.id %>" method="POST">
             <%- include('partials/_live_price_section', { quote: quote }) %>
             
             <%- include('partials/_items_section', { items: items, quote: quote }) %>
