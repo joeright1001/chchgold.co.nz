@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('gold-g-price').textContent = prices.gold_g;
             document.getElementById('silver-oz-price').textContent = prices.silver_oz;
             document.getElementById('silver-g-price').textContent = prices.silver_g;
-            document.getElementById('last-updated').textContent = new Date().toLocaleString();
+            document.getElementById('last-updated').textContent = new Date().toLocaleString('en-NZ');
 
             // Store the raw gram values in the card's dataset for calculations.
             card.dataset.goldGramNzd = prices.gold_g_raw;
