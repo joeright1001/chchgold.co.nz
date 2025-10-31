@@ -57,7 +57,9 @@
             <div class="invalid-feedback"></div>
         </div>
         <div class="col-weight">
-            <label class="form-label">Metal Weight (g): <span class="text-danger">*</span><span class="text-primary">*</span></label>
+            <label class="form-label">Metal Weight (g): <span class="text-danger">*</span>
+                <i class="fas fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Only pure metal weight. E.g. a 8g sovereign at 8g ONLY contains 7.3336 gold"></i>
+            </label>
             <input type="number" class="form-control weight-input" name="items[<%= locals.i %>][weight]" value="<%= locals.item ? item.weight || '' : '' %>" step="any" placeholder="0.0000" min="0">
             <div class="invalid-feedback"></div>
         </div>
