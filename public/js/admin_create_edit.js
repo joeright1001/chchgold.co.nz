@@ -92,6 +92,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle form submission spinner
     form.addEventListener('submit', () => {
+        // Before submitting, update the hidden fields with the latest live prices from the card's dataset
+        document.getElementById('hidden-gold-gram-nzd').value = card.dataset.goldGramNzd || 0;
+        document.getElementById('hidden-silver-gram-nzd').value = card.dataset.silverGramNzd || 0;
+
         spinner.classList.remove('d-none');
         submitButton.disabled = true;
     });

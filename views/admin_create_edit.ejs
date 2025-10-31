@@ -47,6 +47,10 @@
         <% } %>
 
         <form action="<%= isEditMode ? `/admin/create-edit/${quote.id}` : '/admin/create-edit' %>" method="POST" id="admin-create-edit-form">
+            <!-- Hidden fields for spot prices -->
+            <input type="hidden" name="spotPrices[gold_gram_nzd]" id="hidden-gold-gram-nzd" value="<%= isEditMode ? (Number(quote.spot_price_gold_gram_nzd) || 0) : 0 %>">
+            <input type="hidden" name="spotPrices[silver_gram_nzd]" id="hidden-silver-gram-nzd" value="<%= isEditMode ? (Number(quote.spot_price_silver_gram_nzd) || 0) : 0 %>">
+            
             <!-- Customer Details -->
             <div class="card mb-4">
                 <div class="card-header">

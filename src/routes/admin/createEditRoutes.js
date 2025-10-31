@@ -89,7 +89,7 @@ router.get('/:id', async (req, res) => {
 // POST /admin/create-edit - Handles form submission for creating a new quote
 router.post('/', async (req, res) => {
   try {
-    const { customerDetails, items, showQuotedRate } = req.body;
+    const { customerDetails, items, showQuotedRate, spotPrices } = req.body;
     
     // Ensure customerDetails is an object
     const details = customerDetails || {
@@ -103,8 +103,14 @@ router.post('/', async (req, res) => {
     // Filter out empty items
     const filledItems = (items || []).filter(item => item && item.name && item.name.trim() !== '');
     
+    // Prepare spot prices, ensuring they are numbers
+    const prices = {
+      gold_gram_nzd: parseFloat(spotPrices.gold_gram_nzd) || 0,
+      silver_gram_nzd: parseFloat(spotPrices.silver_gram_nzd) || 0,
+    };
+
     // Create the quote
-    const newQuote = await quoteService.createQuote(details, filledItems);
+    const newQuote = await quoteService.createQuote(details, filledItems, prices);
     
     // Update settings if needed
     if (showQuotedRate !== undefined) {

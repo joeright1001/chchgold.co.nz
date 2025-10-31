@@ -62,9 +62,10 @@ const TROY_OUNCE_IN_GRAMS = 31.1035;
  * Creates a new quote and its associated items in the database.
  * @param {object} customerDetails - The customer's information.
  * @param {Array<object>} items - An array of items for the quote.
+ * @param {object} spotPrices - The spot prices for gold and silver.
  * @returns {Promise<object>} The newly created quote.
  */
-async function createQuote(customerDetails, items) {
+async function createQuote(customerDetails, items, spotPrices) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -93,15 +94,12 @@ async function createQuote(customerDetails, items) {
     const nextValue = quoteNumberResult.rows[0].value;
     const quoteNumber = `SBQ-${String(nextValue).padStart(6, '0')}`;
 
-    // 3. Get current spot prices (per gram)
-    const gramPrices = await getSpotPrices();
-
-    // 4. Calculate ounce prices
-    const spotPrices = {
-      gold_gram_nzd: gramPrices.gold_gram_nzd,
-      silver_gram_nzd: gramPrices.silver_gram_nzd,
-      gold_ounce_nzd: gramPrices.gold_gram_nzd * TROY_OUNCE_IN_GRAMS,
-      silver_ounce_nzd: gramPrices.silver_gram_nzd * TROY_OUNCE_IN_GRAMS,
+    // 3. Calculate ounce prices from provided gram prices
+    const prices = {
+      gold_gram_nzd: spotPrices.gold_gram_nzd,
+      silver_gram_nzd: spotPrices.silver_gram_nzd,
+      gold_ounce_nzd: spotPrices.gold_gram_nzd * TROY_OUNCE_IN_GRAMS,
+      silver_ounce_nzd: spotPrices.silver_gram_nzd * TROY_OUNCE_IN_GRAMS,
     };
 
     // 5. TODO: Calculate totals based on items and spot prices
@@ -125,10 +123,10 @@ async function createQuote(customerDetails, items) {
       customerDetails.mobile,
       customerDetails.email,
       customerDetails.zohoId,
-      spotPrices.gold_gram_nzd,
-      spotPrices.silver_gram_nzd,
-      spotPrices.gold_ounce_nzd,
-      spotPrices.silver_ounce_nzd,
+      prices.gold_gram_nzd,
+      prices.silver_gram_nzd,
+      prices.gold_ounce_nzd,
+      prices.silver_ounce_nzd,
       JSON.stringify(totals),
     ];
     const quoteResult = await client.query(quoteInsertQuery, quoteValues);
