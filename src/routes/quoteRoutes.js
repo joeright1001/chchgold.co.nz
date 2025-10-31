@@ -26,22 +26,15 @@
 const express = require('express');
 const router = express.Router();
 const quoteService = require('../services/quoteService');
-const { getSpotPrices } = require('../services/metalsService');
+const { getSpotPrices, calculateAllPrices } = require('../services/metalsService');
 const logger = require('../utils/logger');
 const { staffAuth } = require('../middleware/auth');
-
-const TROY_OUNCE_IN_GRAMS = 31.1035;
 
 // STAFF ROUTE: Fetches current live spot prices (for the create page).
 router.get('/get-live-prices', staffAuth, async (req, res) => {
   try {
     const gramPrices = await getSpotPrices();
-    const spotPrices = {
-      gold_gram_nzd: gramPrices.gold_gram_nzd,
-      silver_gram_nzd: gramPrices.silver_gram_nzd,
-      gold_ounce_nzd: gramPrices.gold_gram_nzd * TROY_OUNCE_IN_GRAMS,
-      silver_ounce_nzd: gramPrices.silver_gram_nzd * TROY_OUNCE_IN_GRAMS,
-    };
+    const spotPrices = calculateAllPrices(gramPrices);
     res.json(spotPrices);
   } catch (error) {
     logger.error('Error fetching live prices', { error: error.message });

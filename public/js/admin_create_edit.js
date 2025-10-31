@@ -380,4 +380,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INITIALIZATION ---
     // Perform an initial calculation of all item prices and the grand total on page load.
     updateAllItemPrices();
+    updateRemoveButtonVisibility();
 });

@@ -2,6 +2,8 @@ const axios = require('axios');
 const logger = require('../utils/logger');
 const { getSpotNormalisationOffset } = require('./settingsService');
 
+const TROY_OUNCE_IN_GRAMS = parseFloat(process.env.TROY_OUNCE_IN_GRAMS) || 31.1035;
+
 /**
  * Applies the spot normalisation offset to a price
  * @param {number} price - The original price
@@ -10,6 +12,21 @@ const { getSpotNormalisationOffset } = require('./settingsService');
  */
 function applyNormalisationOffset(price, offsetPercent) {
   return price * (1 - offsetPercent / 100);
+}
+
+/**
+ * Calculates ounce prices from gram prices using the troy ounce conversion.
+ * This utility function ensures consistent price calculation across the application.
+ * @param {object} gramPrices - Object containing gold_gram_nzd and silver_gram_nzd
+ * @returns {object} Complete price object with both gram and ounce prices
+ */
+function calculateAllPrices(gramPrices) {
+  return {
+    gold_gram_nzd: gramPrices.gold_gram_nzd,
+    silver_gram_nzd: gramPrices.silver_gram_nzd,
+    gold_ounce_nzd: gramPrices.gold_gram_nzd * TROY_OUNCE_IN_GRAMS,
+    silver_ounce_nzd: gramPrices.silver_gram_nzd * TROY_OUNCE_IN_GRAMS
+  };
 }
 
 /**
@@ -59,4 +76,5 @@ async function getSpotPrices() {
 
 module.exports = {
   getSpotPrices,
+  calculateAllPrices
 };

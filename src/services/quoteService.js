@@ -8,10 +8,7 @@
 
 const pool = require('../config/database');
 const logger = require('../utils/logger');
-const { getSpotPrices } = require('./metalsService');
-
-// Conversion constant for troy ounces to grams, loaded from environment variables.
-const TROY_OUNCE_IN_GRAMS = parseFloat(process.env.TROY_OUNCE_IN_GRAMS) || 31.1035;
+const { getSpotPrices, calculateAllPrices } = require('./metalsService');
 
 // --- PRIVATE HELPER FUNCTIONS ---
 
@@ -135,13 +132,8 @@ async function createQuote(customerDetails, items, spotPrices) {
         const shortId = await ensureUniqueShortId();
         const quoteNumber = await getNextQuoteNumber();
 
-        // 2. Calculate ounce prices from the provided gram prices.
-        const prices = {
-            gold_gram_nzd: spotPrices.gold_gram_nzd,
-            silver_gram_nzd: spotPrices.silver_gram_nzd,
-            gold_ounce_nzd: spotPrices.gold_gram_nzd * TROY_OUNCE_IN_GRAMS,
-            silver_ounce_nzd: spotPrices.silver_gram_nzd * TROY_OUNCE_IN_GRAMS,
-        };
+        // 2. Calculate ounce prices from the provided gram prices using utility function.
+        const prices = calculateAllPrices(spotPrices);
 
         // 3. TODO: Calculate totals based on items and spot prices.
         const totals = { grandTotal: 0 }; // Placeholder for calculation logic.
@@ -258,14 +250,9 @@ async function updateQuotePrices(id) {
     try {
         await client.query('BEGIN');
 
-        // 1. Fetch the latest spot prices.
+        // 1. Fetch the latest spot prices and calculate ounce prices using utility function.
         const gramPrices = await getSpotPrices();
-        const spotPrices = {
-            gold_gram_nzd: gramPrices.gold_gram_nzd,
-            silver_gram_nzd: gramPrices.silver_gram_nzd,
-            gold_ounce_nzd: gramPrices.gold_gram_nzd * TROY_OUNCE_IN_GRAMS,
-            silver_ounce_nzd: gramPrices.silver_gram_nzd * TROY_OUNCE_IN_GRAMS,
-        };
+        const spotPrices = calculateAllPrices(gramPrices);
 
         // 2. Update the quote with the new prices.
         const updateQuery = `
