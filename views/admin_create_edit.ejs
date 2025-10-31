@@ -34,6 +34,7 @@
             <div class="card-body">
                 <p><strong>Status:</strong> <span class="badge bg-<%= quote.status === 'active' ? 'success' : 'danger' %>"><%= quote.status %></span></p>
                 <p><strong>Date Created:</strong> <%= new Date(quote.created_at).toLocaleString() %></p>
+                <p><strong>Quote Updated:</strong> <%= new Date(quote.updated_at).toLocaleString() %></p>
                 <% if (quote.status === 'active') { %>
                     <form id="expire-form" action="/admin/create-edit/<%= quote.id %>/expire" method="POST">
                         <button type="submit" class="btn btn-warning">
@@ -137,12 +138,7 @@
                             <p>1 Troy Oz Silver:</p>
                             <p>1 gram Gold:</p>
                             <p>1 gram Silver:</p>
-                            <% 
-                                const lastUpdated = isEditMode && quote.updated_at 
-                                    ? new Date(quote.updated_at).toLocaleString() 
-                                    : 'Not yet loaded';
-                            %>
-                            <p class="mt-3 last-updated-text"><i>Last Updated: <span id="last-updated"><%= lastUpdated %></span></i></p>
+                            <p class="mt-3 last-updated-text"><i>Last Updated: <span id="last-updated">Not yet loaded</span></i></p>
                             <div id="price-error" class="text-danger mt-2"></div>
                             <div class="mt-3">
                                 <button type="button" id="<%= isEditMode ? 'refresh-price-btn' : 'get-live-price-btn' %>" class="btn btn-info">
