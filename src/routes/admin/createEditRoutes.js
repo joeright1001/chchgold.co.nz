@@ -36,6 +36,27 @@ const router = express.Router();
 const quoteService = require('../../services/quoteService');
 const logger = require('../../utils/logger');
 
+/**
+ * A helper function to parse customer details from the request body.
+ * This handles cases where the data might be deeply nested or flat.
+ * @param {object} body - The request body from Express.
+ * @returns {object} A consistently formatted customer details object.
+ */
+function parseCustomerDetails(body) {
+    const { customerDetails } = body;
+    if (customerDetails) {
+        return customerDetails;
+    }
+    // Fallback for flat structure
+    return {
+        firstName: body['customerDetails[firstName]'],
+        surname: body['customerDetails[surname]'],
+        mobile: body['customerDetails[mobile]'],
+        email: body['customerDetails[email]'],
+        zohoId: body['customerDetails[zohoId]'],
+    };
+}
+
 // GET /admin/create-edit - Renders the unified create/edit page in CREATE mode
 router.get('/', async (req, res) => {
   try {
@@ -86,16 +107,10 @@ router.get('/:id', async (req, res) => {
 // POST /admin/create-edit - Handles form submission for creating a new quote
 router.post('/', async (req, res) => {
   try {
-    const { customerDetails, items, showQuotedRate, spotPrices } = req.body;
+    const { items, showQuotedRate, spotPrices } = req.body;
     
-    // Ensure customerDetails is an object
-    const details = customerDetails || {
-      firstName: req.body['customerDetails[firstName]'],
-      surname: req.body['customerDetails[surname]'],
-      mobile: req.body['customerDetails[mobile]'],
-      email: req.body['customerDetails[email]'],
-      zohoId: req.body['customerDetails[zohoId]'],
-    };
+    // Use the helper to get consistent customer details
+    const details = parseCustomerDetails(req.body);
     
     // Filter out empty items
     const filledItems = (items || []).filter(item => item && item.name && item.name.trim() !== '');
@@ -127,16 +142,10 @@ router.post('/', async (req, res) => {
 // POST /admin/create-edit/:id - Handles form submission for updating a quote
 router.post('/:id', async (req, res) => {
   try {
-    const { customerDetails, items, showQuotedRate } = req.body;
+    const { items, showQuotedRate } = req.body;
     
-    // Ensure customerDetails is an object
-    const details = customerDetails || {
-      firstName: req.body['customerDetails[firstName]'],
-      surname: req.body['customerDetails[surname]'],
-      mobile: req.body['customerDetails[mobile]'],
-      email: req.body['customerDetails[email]'],
-      zohoId: req.body['customerDetails[zohoId]'],
-    };
+    // Use the helper to get consistent customer details
+    const details = parseCustomerDetails(req.body);
     
     const settings = {
       showQuotedRate: showQuotedRate === 'on'
