@@ -1,3 +1,11 @@
+/**
+ * @file Client-side validation for the admin create/edit quote form.
+ * @description This script ensures that the form is not submitted unless key validation rules are met.
+ *              It checks for the following:
+ *              1. At least one contact method (mobile or email) is provided for the customer.
+ *              2. For each item row that is partially filled, all fields in that row must be completed.
+ *              If validation fails, the form submission is prevented, and appropriate error messages are displayed.
+ */
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('admin-create-edit-form');
     if (!form) return;
