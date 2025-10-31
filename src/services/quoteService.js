@@ -10,8 +10,8 @@ const pool = require('../config/database');
 const logger = require('../utils/logger');
 const { getSpotPrices } = require('./metalsService');
 
-// Conversion constant for troy ounces to grams.
-const TROY_OUNCE_IN_GRAMS = 31.1035;
+// Conversion constant for troy ounces to grams, loaded from environment variables.
+const TROY_OUNCE_IN_GRAMS = parseFloat(process.env.TROY_OUNCE_IN_GRAMS) || 31.1035;
 
 // --- PRIVATE HELPER FUNCTIONS ---
 

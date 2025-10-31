@@ -2,8 +2,6 @@ const axios = require('axios');
 const logger = require('../utils/logger');
 const { getSpotNormalisationOffset } = require('./settingsService');
 
-const TROY_OUNCE_IN_GRAMS = 31.1035;
-
 /**
  * Applies the spot normalisation offset to a price
  * @param {number} price - The original price
@@ -54,12 +52,8 @@ async function getSpotPrices() {
     logger.error('Error fetching live spot prices', { 
       error: error.response ? error.response.data : error.message 
     });
-    // Fallback to default mock values if the API fails
-    const offset = await getSpotNormalisationOffset().catch(() => 0);
-    return {
-      gold_gram_nzd: applyNormalisationOffset(115.00, offset),
-      silver_gram_nzd: applyNormalisationOffset(1.50, offset),
-    };
+    // Critical: Do not return fallback data. Let the error propagate.
+    throw new Error('Failed to fetch live spot prices.');
   }
 }
 

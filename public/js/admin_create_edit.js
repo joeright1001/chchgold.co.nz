@@ -124,10 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const response = await fetch(url, options);
-            if (!response.ok) {
-                throw new Error('Failed to fetch latest prices from the server.');
-            }
             const data = await response.json();
+
+            if (!response.ok) {
+                // If the server sends a specific error message, use it. Otherwise, use a generic one.
+                throw new Error(data.error || 'Failed to fetch latest prices from the server.');
+            }
 
             // Normalize the keys from the server response, as they differ between modes.
             const prices = {
@@ -154,8 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateAllItemPrices();
 
         } catch (error) {
-            console.error('Error updating prices:', error);
-            priceErrorDiv.textContent = 'Error: Could not update live prices. Please try again.';
+            priceErrorDiv.textContent = `Error: ${error.message}`;
         } finally {
             button.disabled = false;
             spinner.classList.add('d-none');
