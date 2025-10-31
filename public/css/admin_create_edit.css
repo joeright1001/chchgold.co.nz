@@ -1,73 +1,42 @@
-.item-details-row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -15px;
-    margin-left: -15px;
-}
-
-.item-details-row > div {
-    position: relative;
-    width: 100%;
-    padding-right: 15px;
-    padding-left: 15px;
-}
-
-.col-item-name {
-    flex: 0 0 27%;
-    max-width: 27%;
-}
-
-.col-metal-type {
-    flex: 0 0 10%;
-    max-width: 10%;
-}
-
-.col-qty {
-    flex: 0 0 8%;
-    max-width: 8%;
-}
-
-.col-percent {
-    flex: 0 0 8%;
-    max-width: 8%;
-}
-
-.col-weight-type {
-    flex: 0 0 12%;
-    max-width: 12%;
-}
-
-.col-weight {
-    flex: 0 0 15%;
-    max-width: 15%;
-}
-
-.col-live-price {
-    flex: 0 0 17%;
-    max-width: 17%;
-}
-
-.grand-total-title {
-    font-size: 1.2rem;
+/* Status Badge Styles */
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #fff;
     font-weight: bold;
+    text-transform: capitalize;
+    min-width: 80px; /* Set a minimum width for all badges */
+    text-align: center;
 }
 
-.grand-total-value {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #28a745;
+.status-active {
+    background-color: #d4edda; /* Light Green */
+    color: #155724;
 }
 
-.spot-price-display {
-    font-size: 1rem;
+.status-expired {
+    background-color: #f8d7da; /* Light Red */
+    color: #721c24;
 }
 
-.spot-price-display .currency-unit {
-    color: #6c757d;
-    font-size: 0.9rem;
+.viewed-unread {
+    background-color: #e2d9f3; /* Light Purple */
+    color: #4b2e83;
 }
 
-.last-updated-text {
-    font-size: 0.9rem;
-    color: #6c757d;
+.viewed-read {
+    background-color: #28a745; /* Med-dark Green */
+}
+
+/* Expire Button Style */
+.btn-expire {
+    background-color: #f8d7da; /* Light Red */
+    color: #721c24;
+    border-color: #f5c6cb;
+}
+
+.btn-expire:hover {
+    background-color: #f1b0b7;
+    border-color: #f1b0b7;
 }

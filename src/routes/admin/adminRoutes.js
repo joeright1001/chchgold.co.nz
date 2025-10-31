@@ -35,6 +35,8 @@ router.get('/', async (req, res) => {
         q.customer_email,
         q.created_at,
         q.status,
+        q.customer_viewed,
+        q.customer_viewed_at,
         STRING_AGG(qi.item_name, ', ') AS items
       FROM quotes q
       LEFT JOIN quote_items qi ON q.id = qi.quote_id

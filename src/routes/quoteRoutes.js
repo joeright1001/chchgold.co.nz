@@ -95,6 +95,11 @@ router.post('/:shortId/login', async (req, res) => {
     const isValidCustomer = await quoteService.validateCustomerCredential(quoteData.quote.id, credential);
 
     if (isValidCustomer || isAdmin) {
+      // If a valid customer logs in (not admin), update the viewed status
+      if (isValidCustomer) {
+        await quoteService.updateQuoteViewedStatus(quoteData.quote.id);
+      }
+
       req.session.authenticatedQuoteId = shortId; // Store short_id in session
       // Save session before redirect to ensure it's persisted
       req.session.save((err) => {

@@ -20,7 +20,9 @@ CREATE TABLE quotes (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     show_quoted_rate BOOLEAN DEFAULT FALSE,
-    status VARCHAR(20) NOT NULL DEFAULT 'active'
+    status VARCHAR(20) NOT NULL DEFAULT 'active',
+    customer_viewed VARCHAR(20) DEFAULT 'unread',
+    customer_viewed_at TIMESTAMPTZ
 );
 
 -- Create the quote_items table

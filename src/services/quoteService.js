@@ -436,6 +436,30 @@ async function updateQuoteStatus(id, status) {
     }
 }
 
+/**
+ * Updates the viewed status of a quote to 'read'.
+ * This is triggered when a customer views the quote for the first time.
+ * @param {string} id - The UUID of the quote.
+ */
+async function updateQuoteViewedStatus(id) {
+    const client = await pool.connect();
+    try {
+        const query = `
+            UPDATE quotes 
+            SET 
+                customer_viewed = 'read',
+                customer_viewed_at = NOW()
+            WHERE id = $1 AND customer_viewed = 'unread';
+        `;
+        await client.query(query, [id]);
+    } catch (error) {
+        logger.error(`Error updating quote viewed status for quote ${id}`, { error });
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
 module.exports = {
     getNextQuoteNumber,
     createQuote,
@@ -447,5 +471,6 @@ module.exports = {
     updateQuoteDetails,
     updateQuoteSettings,
     updateQuoteStatus,
+    updateQuoteViewedStatus,
     ensureUniqueShortId, // Export for potential migration scripts
 };

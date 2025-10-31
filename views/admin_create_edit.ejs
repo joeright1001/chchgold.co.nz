@@ -32,12 +32,24 @@
                 <h2>Date Created & Status</h2>
             </div>
             <div class="card-body">
-                <p><strong>Status:</strong> <span class="badge bg-<%= quote.status === 'active' ? 'success' : 'danger' %>"><%= quote.status %></span></p>
+                <p><strong>Status:</strong> 
+                    <span class="status-badge status-<%= quote.status.toLowerCase() %>">
+                        <%= quote.status %>
+                    </span>
+                </p>
+                <p><strong>Viewed:</strong> 
+                    <span class="status-badge viewed-<%= quote.customer_viewed.toLowerCase() %>">
+                        <%= quote.customer_viewed %>
+                    </span>
+                </p>
+                <% if (quote.customer_viewed === 'read' && quote.customer_viewed_at) { %>
+                    <p><strong>Viewed At:</strong> <%= new Date(quote.customer_viewed_at).toLocaleString('en-NZ') %></p>
+                <% } %>
                 <p><strong>Date Created:</strong> <%= new Date(quote.created_at).toLocaleString('en-NZ') %></p>
                 <p><strong>Quote Updated:</strong> <%= new Date(quote.updated_at).toLocaleString('en-NZ') %></p>
                 <% if (quote.status === 'active') { %>
                     <form id="expire-form" action="/admin/create-edit/<%= quote.id %>/expire" method="POST">
-                        <button type="submit" class="btn btn-warning">
+                        <button type="submit" class="btn btn-expire">
                             <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                             Mark as Expired
                         </button>

@@ -7,7 +7,7 @@
 }
 
 .admin-table .col-items {
-    width: 35%;
+    width: 30%;
     min-width: 200px;
 }
 
@@ -17,11 +17,16 @@
 }
 
 .admin-table .col-email {
-    width: 20%;
+    width: 15%;
     min-width: 180px;
 }
 
 .admin-table .col-status {
+    width: 8%;
+    min-width: 90px;
+}
+
+.admin-table .col-viewed {
     width: 8%;
     min-width: 90px;
 }
@@ -71,4 +76,35 @@
 .admin-table .col-items {
     white-space: normal;
     word-wrap: break-word;
+}
+
+/* Status Badge Styles */
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #fff;
+    font-weight: bold;
+    text-transform: capitalize;
+    min-width: 80px; /* Set a minimum width for all badges */
+    text-align: center;
+}
+
+.status-active {
+    background-color: #d4edda; /* Light Green */
+    color: #155724;
+}
+
+.status-expired {
+    background-color: #f8d7da; /* Light Red */
+    color: #721c24;
+}
+
+.viewed-unread {
+    background-color: #e2d9f3; /* Light Purple */
+    color: #4b2e83;
+}
+
+.viewed-read {
+    background-color: #28a745; /* Med-dark Green */
 }
