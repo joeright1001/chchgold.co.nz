@@ -139,7 +139,7 @@ async function createQuote(customerDetails, items, spotPrices) {
         VALUES ($1, $2, $3, $4, $5, $6, $7);
       `;
       for (const item of items) {
-        const itemValues = [newQuote.id, item.name, item.metalType, item.percent, item.weight, item.weightType, item.quantity || 1];
+        const itemValues = [newQuote.id, item.name, item.metalType, item.percent || null, item.weight || null, item.weightType || null, item.quantity || 1];
         await client.query(itemInsertQuery, itemValues);
       }
     }

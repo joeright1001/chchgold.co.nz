@@ -35,7 +35,6 @@ const express = require('express');
 const router = express.Router();
 const quoteService = require('../../services/quoteService');
 const logger = require('../../utils/logger');
-const weightOptions = require('../../config/weightOptions');
 
 // GET /admin/create-edit - Renders the unified create/edit page in CREATE mode
 router.get('/', async (req, res) => {
@@ -46,8 +45,7 @@ router.get('/', async (req, res) => {
       isUpdated: false,
       quote: {},
       items: [],
-      customerUrl: '',
-      weightOptions: weightOptions
+      customerUrl: ''
     });
   } catch (error) {
     logger.error('Error rendering create-edit page', { error: error.message });
@@ -77,8 +75,7 @@ router.get('/:id', async (req, res) => {
       isUpdated: isUpdated,
       quote: quoteData.quote,
       items: quoteData.items,
-      customerUrl: customerUrl,
-      weightOptions: weightOptions
+      customerUrl: customerUrl
     });
   } catch (error) {
     logger.error(`Error fetching quote for create-edit view (ID: ${req.params.id})`, { error: error.message });

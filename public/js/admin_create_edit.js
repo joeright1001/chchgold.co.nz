@@ -1,47 +1,38 @@
 /**
+ * =====================================================================================
  * ADMIN CREATE-EDIT JavaScript - Client-Side Functionality
- * 
- * This file provides all interactive functionality for the unified create-edit page:
- * 
- * KEY FUNCTIONS:
- * 1. Contact Validation - Ensures mobile OR email is provided
- * 2. Live Price Management - Fetches and updates metal prices
- * 3. Items Management - Add/remove/calculate item prices dynamically
- * 4. URL Copy - Copy customer URL to clipboard
- * 5. Form Submission - Handle loading states
- * 6. Expire Quote - Confirm and submit expire request
- * 7. Weight Type Management - Handles the logic for weight type selection and data storage.
- * 
- * WORKFLOW:
- * INITIALIZATION:
- * - Detects if in CREATE or EDIT mode based on presence of quote ID
- * - Sets up all event listeners for buttons and form interactions
- * - Calculates initial item prices and grand total
- * 
- * LIVE PRICES:
- * - CREATE mode: Uses /quote/get-live-prices endpoint
- * - EDIT mode: Uses /quote/edit/:id/refresh-price endpoint
- * - Updates display and recalculates all item prices
- * 
- * ITEMS MANAGEMENT:
- * - Add Item: Creates new row with weight type options
- * - Remove Item: Deletes row and reindexes remaining items
- * - Weight Type Change: Auto-fills weight input
- * - Calculate Price: metal_type × weight × quantity × spot_price
- * - Grand Total: Sum of all item prices
- * 
- * WEIGHT TYPE MANAGEMENT (DYNAMIC):
- * - The list of weight options is NOT hardcoded in this file.
- * - It is passed from the server and stored in a global `window.weightOptions` variable.
- * - On page load, the `populateWeightSelect` function reads this global variable and dynamically builds the dropdowns for ALL item rows (both initial and newly added).
- * - This ensures a single source of truth for the options, managed in `src/config/weightOptions.js`.
- * - The `value` of each `<option>` is the gram equivalent, used for calculations and saved to the database.
- * 
- * NOTE: Prices stored in card dataset (data-gold-gram-nzd, data-silver-gram-nzd)
- * NOTE: Item indices must stay sequential for form submission
+ * =====================================================================================
+ *
+ * This script manages all client-side interactivity for the quote creation and editing page.
+ * Its primary purpose is to provide a dynamic and responsive user experience for administrators.
+ *
+ * -------------------------------------------------------------------------------------
+ * CORE FEATURES:
+ * -------------------------------------------------------------------------------------
+ *
+ * 1.  **Live Price Updates:**
+ *     - Fetches and displays real-time gold and silver spot prices.
+ *     - Allows manual price refreshes, which automatically recalculate all item values.
+ *
+ * 2.  **Dynamic Item Rows:**
+ *     - Users can add or remove quote items on the fly.
+ *     - New item rows are created by cloning a `<template>` element, ensuring a single,
+ *       maintainable source for the item row's HTML structure.
+ *
+ * 3.  **Real-Time Calculations:**
+ *     - Instantly calculates and displays the total price for each item row as the user
+ *       inputs data (quantity, weight, etc.).
+ *     - Automatically updates the grand total for the entire quote in real-time.
+ *
+ * 4.  **User Interface Feedback:**
+ *     - Manages loading spinners and button states during asynchronous operations like
+ *       fetching prices or submitting the form.
+ *     - Provides simple UI enhancements like a "copy to clipboard" button for the quote URL.
+ *
+ * =====================================================================================
  */
-
 document.addEventListener('DOMContentLoaded', () => {
+    // --- CORE ELEMENT SELECTION ---
     const form = document.getElementById('admin-create-edit-form');
     const submitButton = form.querySelector('button[type="submit"]');
     const spinner = submitButton.querySelector('.spinner-border');
@@ -49,13 +40,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const quoteId = card.dataset.quoteId;
     const isEditMode = !!quoteId;
 
-    // Handle copy URL button (only in edit mode)
+    // --- UI/UX EVENT LISTENERS ---
+
+    /**
+     * Handles the "Copy URL" button functionality in edit mode.
+     * Selects the URL text, copies it to the clipboard, and provides brief user feedback.
+     */
     const copyUrlBtn = document.getElementById('copy-url-btn');
     if (copyUrlBtn) {
         const customerUrlInput = document.getElementById('customer-url');
         copyUrlBtn.addEventListener('click', () => {
             customerUrlInput.select();
-            document.execCommand('copy');
+            document.execCommand('copy'); // Note: execCommand is deprecated but simple for this use case.
             copyUrlBtn.textContent = 'Copied!';
             setTimeout(() => {
                 copyUrlBtn.textContent = 'Copy';
@@ -63,7 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Handle expire form (only in edit mode)
+    /**
+     * Handles the "Mark as Expired" form submission in edit mode.
+     * - Shows a confirmation dialog before proceeding.
+     * - Prevents submission if the user cancels.
+     * - Manages the loading spinner and button state.
+     */
     const expireForm = document.getElementById('expire-form');
     if (expireForm) {
         const expireButton = expireForm.querySelector('button[type="submit"]');
@@ -87,9 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Handle form submission spinner
+    /**
+     * Handles the main form submission.
+     * - Updates hidden input fields with the latest spot prices from the card's dataset.
+     * - Shows a loading spinner on the submit button to indicate processing.
+     */
     form.addEventListener('submit', () => {
-        // Before submitting, update the hidden fields with the latest live prices from the card's dataset
         document.getElementById('hidden-gold-gram-nzd').value = card.dataset.goldGramNzd || 0;
         document.getElementById('hidden-silver-gram-nzd').value = card.dataset.silverGramNzd || 0;
 
@@ -97,155 +101,93 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.disabled = true;
     });
 
-    // ===== LIVE PRICE MANAGEMENT =====
+    // =====================================================================================
+    // LIVE PRICE MANAGEMENT
+    // =====================================================================================
     const refreshPriceBtn = document.getElementById('refresh-price-btn');
     const getLivePriceBtn = document.getElementById('get-live-price-btn');
     const priceErrorDiv = document.getElementById('price-error');
 
-    // For edit mode - refresh existing quote prices
-    if (refreshPriceBtn) {
-        refreshPriceBtn.addEventListener('click', async () => {
-            const spinner = refreshPriceBtn.querySelector('.spinner-border');
-            refreshPriceBtn.disabled = true;
-            spinner.classList.remove('d-none');
-            priceErrorDiv.textContent = '';
-
-            try {
-                const response = await fetch(`/quote/edit/${quoteId}/refresh-price`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch latest prices from the server.');
-                }
-
-                const data = await response.json();
-
-                // Update displayed prices
-                document.getElementById('gold-oz-price').textContent = Number(data.spot_price_gold_ounce_nzd).toFixed(2);
-                document.getElementById('gold-g-price').textContent = Number(data.spot_price_gold_gram_nzd).toFixed(2);
-                document.getElementById('silver-oz-price').textContent = Number(data.spot_price_silver_ounce_nzd).toFixed(2);
-                document.getElementById('silver-g-price').textContent = Number(data.spot_price_silver_gram_nzd).toFixed(2);
-                document.getElementById('last-updated').textContent = new Date().toLocaleString();
-
-                // Update card dataset for live price calculations
-                card.dataset.goldGramNzd = data.spot_price_gold_gram_nzd;
-                card.dataset.silverGramNzd = data.spot_price_silver_gram_nzd;
-
-                // Recalculate all item prices
-                updateAllItemPrices();
-
-            } catch (error) {
-                console.error('Error updating prices:', error);
-                priceErrorDiv.textContent = 'Error: Could not update live prices. Please try again.';
-            } finally {
-                refreshPriceBtn.disabled = false;
-                spinner.classList.add('d-none');
-            }
-        });
-    }
-
-    // For create mode - get initial live prices
-    if (getLivePriceBtn) {
-        getLivePriceBtn.addEventListener('click', async () => {
-            const spinner = getLivePriceBtn.querySelector('.spinner-border');
-            getLivePriceBtn.disabled = true;
-            spinner.classList.remove('d-none');
-            priceErrorDiv.textContent = '';
-
-            try {
-                const response = await fetch('/quote/get-live-prices');
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch latest prices from the server.');
-                }
-
-                const data = await response.json();
-
-                // Update displayed prices
-                document.getElementById('gold-oz-price').textContent = Number(data.gold_ounce_nzd).toFixed(2);
-                document.getElementById('gold-g-price').textContent = Number(data.gold_gram_nzd).toFixed(2);
-                document.getElementById('silver-oz-price').textContent = Number(data.silver_ounce_nzd).toFixed(2);
-                document.getElementById('silver-g-price').textContent = Number(data.silver_gram_nzd).toFixed(2);
-                document.getElementById('last-updated').textContent = new Date().toLocaleString();
-
-                // Update card dataset for live price calculations
-                card.dataset.goldGramNzd = data.gold_gram_nzd;
-                card.dataset.silverGramNzd = data.silver_gram_nzd;
-
-                // Recalculate all item prices
-                updateAllItemPrices();
-
-            } catch (error) {
-                console.error('Error fetching live prices:', error);
-                priceErrorDiv.textContent = 'Error: Could not fetch live prices. Please try again.';
-            } finally {
-                getLivePriceBtn.disabled = false;
-                spinner.classList.add('d-none');
-            }
-        });
-    }
-
-    // ===== ITEMS MANAGEMENT =====
-
     /**
-     * Populates a <select> element with weight options from the global window.weightOptions.
-     * @param {HTMLSelectElement} selectElement The <select> element to populate.
-     * @param {string|null} selectedValue The value to be pre-selected.
+     * A single, reusable function to fetch, display, and store live spot prices.
+     * This function handles the logic for both "create" and "edit" modes.
+     * @param {HTMLButtonElement} button - The button element that triggered the action.
      */
-    function populateWeightSelect(selectElement, selectedValue = null) {
-        // Ensure the global variable exists
-        if (!window.weightOptions || !Array.isArray(window.weightOptions)) {
-            console.error('weightOptions is not available.');
-            return;
+    const updateLivePrices = async (button) => {
+        const spinner = button.querySelector('.spinner-border');
+        button.disabled = true;
+        spinner.classList.remove('d-none');
+        priceErrorDiv.textContent = '';
+
+        const url = isEditMode ? `/quote/edit/${quoteId}/refresh-price` : '/quote/get-live-prices';
+        const options = isEditMode ? { method: 'POST', headers: { 'Content-Type': 'application/json' } } : {};
+
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error('Failed to fetch latest prices from the server.');
+            }
+            const data = await response.json();
+
+            // Normalize the keys from the server response, as they differ between modes.
+            const prices = {
+                gold_oz: Number(data.spot_price_gold_ounce_nzd || data.gold_ounce_nzd).toFixed(2),
+                gold_g: Number(data.spot_price_gold_gram_nzd || data.gold_gram_nzd).toFixed(2),
+                silver_oz: Number(data.spot_price_silver_ounce_nzd || data.silver_ounce_nzd).toFixed(2),
+                silver_g: Number(data.spot_price_silver_gram_nzd || data.silver_gram_nzd).toFixed(2),
+                gold_g_raw: data.spot_price_gold_gram_nzd || data.gold_gram_nzd,
+                silver_g_raw: data.spot_price_silver_gram_nzd || data.silver_gram_nzd
+            };
+
+            // Update the UI with the new prices.
+            document.getElementById('gold-oz-price').textContent = prices.gold_oz;
+            document.getElementById('gold-g-price').textContent = prices.gold_g;
+            document.getElementById('silver-oz-price').textContent = prices.silver_oz;
+            document.getElementById('silver-g-price').textContent = prices.silver_g;
+            document.getElementById('last-updated').textContent = new Date().toLocaleString();
+
+            // Store the raw gram values in the card's dataset for calculations.
+            card.dataset.goldGramNzd = prices.gold_g_raw;
+            card.dataset.silverGramNzd = prices.silver_g_raw;
+
+            // Recalculate all item prices with the new spot values.
+            updateAllItemPrices();
+
+        } catch (error) {
+            console.error('Error updating prices:', error);
+            priceErrorDiv.textContent = 'Error: Could not update live prices. Please try again.';
+        } finally {
+            button.disabled = false;
+            spinner.classList.add('d-none');
         }
+    };
 
-        selectElement.innerHTML = ''; // Clear existing options
-
-        const selectOption = document.createElement('option');
-        selectOption.value = '';
-        selectOption.textContent = 'Select...';
-        selectElement.appendChild(selectOption);
-
-        // Group options by their 'group' property
-        const groups = window.weightOptions.reduce((acc, option) => {
-            (acc[option.group] = acc[option.group] || []).push(option);
-            return acc;
-        }, {});
-
-        // Create and append optgroups and options
-        for (const groupName in groups) {
-            const optgroup = document.createElement('optgroup');
-            optgroup.label = groupName;
-            groups[groupName].forEach(optionData => {
-                const option = document.createElement('option');
-                option.value = optionData.value;
-                option.textContent = optionData.text;
-                // Use '==' for comparison because values from HTML can be strings
-                if (selectedValue && selectedValue == optionData.value) {
-                    option.selected = true;
-                }
-                optgroup.appendChild(option);
-            });
-            selectElement.appendChild(optgroup);
-        }
+    // Attach the event listener to the "refresh" button if it exists (edit mode).
+    if (refreshPriceBtn) {
+        refreshPriceBtn.addEventListener('click', () => updateLivePrices(refreshPriceBtn));
     }
 
+    // Attach the event listener to the "get live" button if it exists (create mode).
+    if (getLivePriceBtn) {
+        getLivePriceBtn.addEventListener('click', () => updateLivePrices(getLivePriceBtn));
+    }
+
+    // =====================================================================================
+    // DYNAMIC ITEMS MANAGEMENT
+    // =====================================================================================
     const itemsContainer = document.getElementById('items-container');
     const addItemBtn = document.getElementById('add-item-btn');
 
-    // Initialize - set up event listeners for existing items
+    // Initial setup: attach event listeners to any server-rendered item rows.
     setupItemEventListeners();
 
-    // Populate all existing weight dropdowns on page load, preserving the selected value
-    document.querySelectorAll('.weight-type-select').forEach(select => {
-        const hiddenInput = select.closest('.item-row').querySelector('.weight-type-hidden');
-        const selectedValue = hiddenInput ? hiddenInput.value : null;
-        populateWeightSelect(select, selectedValue);
-    });
-
-    // Add new item
+    /**
+     * Handles the "Add Item" button click.
+     * - Determines the correct index for the new row.
+     * - Creates a new item row using the template.
+     * - Appends the new row to the container.
+     * - Updates UI elements like remove buttons and item numbers.
+     */
     addItemBtn.addEventListener('click', (e) => {
         e.preventDefault();
         const currentRows = itemsContainer.querySelectorAll('.item-row');
@@ -254,80 +196,46 @@ document.addEventListener('DOMContentLoaded', () => {
         const newRow = createItemRow(newIndex);
         itemsContainer.appendChild(newRow);
         
-        // Show all remove buttons if we have more than one row
         updateRemoveButtonVisibility();
-        
-        // Update item numbers
         updateItemNumbers();
     });
 
+    /**
+     * Creates a new item row by cloning an HTML template.
+     * @param {number} index - The new row's index, used to set names and IDs correctly.
+     * @returns {HTMLElement} The newly created item row element, ready to be appended.
+     */
     function createItemRow(index) {
-        const div = document.createElement('div');
-        div.className = 'mb-3 p-2 border rounded item-row';
-        div.dataset.metalType = 'Gold';
-        div.dataset.rowIndex = index;
-        
-        div.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0">Item <span class="item-number">${index + 1}</span></h5>
-                <a href="#" class="remove-item-btn text-danger">Remove</a>
-            </div>
-            <input type="hidden" name="items[${index}][id]" value="" class="item-id-input">
-            <input type="hidden" name="items[${index}][weightType]" id="weightTypeHidden${index}" value="" class="weight-type-hidden">
-            <div class="item-details-row align-items-center">
-                <div class="col-item-name">
-                    <label class="form-label">Item Name: <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control item-name-input" name="items[${index}][name]" value="">
-                    <div class="invalid-feedback"></div>
-                </div>
-                <div class="col-metal-type">
-                    <label class="form-label">Metal Type:</label>
-                    <select class="form-select metal-type-select" name="items[${index}][metalType]">
-                        <option value="Gold" selected>Gold</option>
-                        <option value="Silver">Silver</option>
-                    </select>
-                </div>
-                <div class="col-qty">
-                    <label class="form-label">Qty: <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control quantity-input" name="items[${index}][quantity]" value="1" min="1">
-                    <div class="invalid-feedback"></div>
-                </div>
-                <div class="col-percent">
-                    <label class="form-label">%:</label>
-                    <input type="number" class="form-control percent-input" name="items[${index}][percent]" value="" step="0.01" min="0">
-                </div>
-                <div class="col-weight-type">
-                    <label class="form-label">Weight Type: <span class="text-danger">*</span></label>
-                    <select class="form-select weight-type-select" data-index="${index}"></select>
-                    <div class="invalid-feedback"></div>
-                </div>
-                <div class="col-weight">
-                    <label class="form-label">Metal Weight (g): <span class="text-danger">*</span><span class="text-primary">*</span></label>
-                    <input type="number" class="form-control weight-input" name="items[${index}][weight]" value="" step="any" placeholder="0.0000" min="0">
-                    <div class="invalid-feedback"></div>
-                </div>
-                <div class="col-live-price">
-                    <label>Live Price:</label>
-                    <p><strong>$<span class="live-price">0.00</span> NZD</strong></p>
-                </div>
-            </div>
-        `;
-        
-        // Populate the newly created select element using the single source of truth
-        const weightTypeSelect = div.querySelector('.weight-type-select');
-        populateWeightSelect(weightTypeSelect);
+        const template = document.getElementById('item-row-template');
+        const clone = template.content.cloneNode(true);
+        const newRow = clone.querySelector('.item-row');
 
-        setupItemRowListeners(div);
-        return div;
+        // The template HTML contains 'INDEX' as a placeholder. This replaces it
+        // with the actual row index to ensure form field names are correct.
+        // e.g., name="items[INDEX][name]" becomes name="items[1][name]"
+        newRow.innerHTML = newRow.innerHTML.replace(/INDEX/g, index);
+        
+        // Attach all necessary event listeners to the new row's inputs.
+        setupItemRowListeners(newRow);
+        return newRow;
     }
 
+    /**
+     * A helper function to iterate over all item rows and attach event listeners.
+     * This is used for both initial page load and for newly added rows.
+     */
     function setupItemEventListeners() {
         const rows = itemsContainer.querySelectorAll('.item-row');
         rows.forEach(row => setupItemRowListeners(row));
     }
 
+    /**
+     * Attaches all necessary event listeners to a single item row.
+     * This is the core of the item's interactivity.
+     * @param {HTMLElement} row - The item row element to attach listeners to.
+     */
     function setupItemRowListeners(row) {
-        // Remove button
+        // Remove button: Deletes the row and triggers UI updates.
         const removeBtn = row.querySelector('.remove-item-btn');
         removeBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -335,53 +243,40 @@ document.addEventListener('DOMContentLoaded', () => {
             updateRemoveButtonVisibility();
             updateItemNumbers();
             reindexItems();
-            updateAllItemPrices();
+            updateAllItemPrices(); // Recalculate total after removal
         });
 
-        // Metal type change
+        // Metal type dropdown: Updates the row's dataset and recalculates its price.
         const metalTypeSelect = row.querySelector('.metal-type-select');
         metalTypeSelect.addEventListener('change', (e) => {
             row.dataset.metalType = e.target.value;
             calculateItemPrice(row);
         });
 
-        // Weight type change
+        // Weight type dropdown: When a pre-defined weight is selected (e.g., "1 oz"),
+        // it auto-fills the "Metal Weight (g)" input with the gram equivalent.
         const weightTypeSelect = row.querySelector('.weight-type-select');
         weightTypeSelect.addEventListener('change', (e) => {
             const weightInput = row.querySelector('.weight-input');
             const weightTypeHidden = row.querySelector('.weight-type-hidden');
             
             const selectedWeight = e.target.value;
-            weightInput.value = selectedWeight;
-            
-            // The 'weight_type' saved to the database is the gram value from the dropdown.
-            // This value is used by `customer_view_quote.ejs` to look up the display text
-            // in its `weightTypeMap`. This ensures that the admin panel uses grams for
-            // calculations, while the customer sees a user-friendly description.
-            weightTypeHidden.value = selectedWeight;
+            weightInput.value = selectedWeight; // Auto-fill the weight input
+            weightTypeHidden.value = selectedWeight; // Update hidden field for submission
             
             calculateItemPrice(row);
         });
 
-        // Weight input change
-        const weightInput = row.querySelector('.weight-input');
-        weightInput.addEventListener('input', () => {
-            calculateItemPrice(row);
-        });
-
-        // Quantity change
-        const quantityInput = row.querySelector('.quantity-input');
-        quantityInput.addEventListener('input', () => {
-            calculateItemPrice(row);
-        });
-
-        // Percent change
-        const percentInput = row.querySelector('.percent-input');
-        percentInput.addEventListener('input', () => {
-            calculateItemPrice(row);
-        });
+        // All other inputs (weight, quantity, percent) trigger a price recalculation on change.
+        row.querySelector('.weight-input').addEventListener('input', () => calculateItemPrice(row));
+        row.querySelector('.quantity-input').addEventListener('input', () => calculateItemPrice(row));
+        row.querySelector('.percent-input').addEventListener('input', () => calculateItemPrice(row));
     }
 
+    /**
+     * Manages the visibility of the "Remove" button for each item row.
+     * If only one row exists, the button is hidden. If more than one, it's shown.
+     */
     function updateRemoveButtonVisibility() {
         const rows = itemsContainer.querySelectorAll('.item-row');
         const removeButtons = itemsContainer.querySelectorAll('.remove-item-btn');
@@ -393,20 +288,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Updates the visual item number (e.g., "Item 1", "Item 2") for all rows.
+     * This is called after adding or removing a row.
+     */
     function updateItemNumbers() {
         const rows = itemsContainer.querySelectorAll('.item-row');
         rows.forEach((row, index) => {
-            const itemNumber = row.querySelector('.item-number');
-            itemNumber.textContent = index + 1;
+            row.querySelector('.item-number').textContent = index + 1;
         });
     }
 
+    /**
+     * Re-indexes all form inputs within the item rows after a deletion.
+     * This is CRITICAL for form submission, as the server expects a zero-based,
+     * sequential array of items (e.g., items[0], items[1], items[2]).
+     */
     function reindexItems() {
         const rows = itemsContainer.querySelectorAll('.item-row');
         rows.forEach((row, newIndex) => {
             row.dataset.rowIndex = newIndex;
             
-            // Update all input names
             row.querySelectorAll('input, select').forEach(input => {
                 if (input.name) {
                     input.name = input.name.replace(/\[\d+\]/, `[${newIndex}]`);
@@ -423,16 +325,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /**
+     * Calculates the live price for a single item row based on its inputs.
+     * Formula: (Weight * GramPrice * Quantity) * (1 - PercentDiscount)
+     * @param {HTMLElement} row - The item row to calculate the price for.
+     */
     function calculateItemPrice(row) {
         const metalType = row.dataset.metalType;
-        const weightInput = row.querySelector('.weight-input');
-        const quantityInput = row.querySelector('.quantity-input');
-        const percentInput = row.querySelector('.percent-input');
-        const livePriceSpan = row.querySelector('.live-price');
-        
-        const weight = parseFloat(weightInput.value) || 0;
-        const quantity = parseInt(quantityInput.value) || 1;
-        const percent = parseFloat(percentInput.value) || 0;
+        const weight = parseFloat(row.querySelector('.weight-input').value) || 0;
+        const quantity = parseInt(row.querySelector('.quantity-input').value) || 1;
+        const percent = parseFloat(row.querySelector('.percent-input').value) || 0;
         
         const goldGramPrice = parseFloat(card.dataset.goldGramNzd) || 0;
         const silverGramPrice = parseFloat(card.dataset.silverGramNzd) || 0;
@@ -447,15 +349,22 @@ document.addEventListener('DOMContentLoaded', () => {
         let finalPrice = basePrice * (1 - (percent / 100));
         finalPrice = Math.max(0, finalPrice); // Ensure price is not negative
         
-        livePriceSpan.textContent = finalPrice.toFixed(2);
-        updateGrandTotal();
+        row.querySelector('.live-price').textContent = finalPrice.toFixed(2);
+        updateGrandTotal(); // Trigger a grand total update after each item calculation.
     }
 
+    /**
+     * A utility function to loop through all item rows and recalculate their prices.
+     * This is typically called after fetching new spot prices.
+     */
     function updateAllItemPrices() {
         const rows = itemsContainer.querySelectorAll('.item-row');
         rows.forEach(row => calculateItemPrice(row));
     }
 
+    /**
+     * Calculates and updates the grand total by summing up all individual item prices.
+     */
     function updateGrandTotal() {
         const livePrices = itemsContainer.querySelectorAll('.live-price');
         let total = 0;
@@ -467,6 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('grand-total').textContent = total.toFixed(2);
     }
 
-    // Initial calculation
+    // --- INITIALIZATION ---
+    // Perform an initial calculation of all item prices and the grand total on page load.
     updateAllItemPrices();
 });

@@ -185,66 +185,14 @@
                         const itemsToShow = (isEditMode && items && items.length > 0) ? items : [{}];
                         itemsToShow.forEach((item, i) => { 
                         %>
-                            <div class="mb-3 p-2 border rounded item-row" data-metal-type="<%= item.metal_type || 'Gold' %>" data-row-index="<%= i %>">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 class="mb-0">Item <span class="item-number"><%= i + 1 %></span></h5>
-                                    <a href="#" class="remove-item-btn text-danger" style="<%= itemsToShow.length === 1 ? 'display: none;' : '' %>">Remove</a>
-                                </div>
-                                <input type="hidden" name="items[<%= i %>][id]" value="<%= item.id || '' %>" class="item-id-input">
-                                <input type="hidden" name="items[<%= i %>][weightType]" id="weightTypeHidden<%= i %>" value="<%= item.weight_type || '' %>" class="weight-type-hidden">
-                                <div class="item-details-row align-items-center">
-                                <div class="col-item-name">
-                                    <label class="form-label">Item Name: <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control item-name-input" name="items[<%= i %>][name]" value="<%= item.item_name || '' %>">
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                                <div class="col-metal-type">
-                                    <label class="form-label">Metal Type:</label>
-                                    <select class="form-select metal-type-select" name="items[<%= i %>][metalType]">
-                                        <option value="Gold" <%= (item.metal_type === 'Gold' ? 'selected' : '') %>>Gold</option>
-                                        <option value="Silver" <%= (item.metal_type === 'Silver' ? 'selected' : '') %>>Silver</option>
-                                    </select>
-                                </div>
-                                <div class="col-qty">
-                                    <label class="form-label">Qty: <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control quantity-input" name="items[<%= i %>][quantity]" value="<%= item.quantity || 1 %>" min="1">
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                                <div class="col-percent">
-                                    <label class="form-label">%:</label>
-                                    <input type="number" class="form-control percent-input" name="items[<%= i %>][percent]" value="<%= item.percent || '' %>" step="0.01" min="0">
-                                </div>
-                                <div class="col-weight-type">
-                                    <label class="form-label">Weight Type: <span class="text-danger">*</span></label>
-                                    <select class="form-select weight-type-select" data-index="<%= i %>">
-                                        <!-- Options are now populated by admin_create_edit.js -->
-                                    </select>
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                                <div class="col-weight">
-                                    <label class="form-label">Metal Weight (g): <span class="text-danger">*</span><span class="text-primary">*</span></label>
-                                    <input type="number" class="form-control weight-input" name="items[<%= i %>][weight]" value="<%= item.weight || '' %>" step="any" placeholder="0.0000" min="0">
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                                <div class="col-live-price">
-                                    <label>Live Price:</label>
-                                    <% 
-                                        let livePrice = 0;
-                                        if (isEditMode && item.weight) {
-                                            const quantity = item.quantity || 1;
-                                            if (item.metal_type === 'Gold') {
-                                                livePrice = item.weight * quote.spot_price_gold_gram_nzd * quantity;
-                                            } else if (item.metal_type === 'Silver') {
-                                                livePrice = item.weight * quote.spot_price_silver_gram_nzd * quantity;
-                                            }
-                                        }
-                                    %>
-                                    <p><strong>$<span class="live-price"><%= livePrice.toFixed(2) %></span> NZD</strong></p>
-                                </div>
-                                </div>
-                            </div>
+                            <%- include('partials/_item_row', { item: item, i: i }) %>
                         <% }); %>
                     </div>
+
+                    <!-- Template for new item rows -->
+                    <template id="item-row-template">
+                        <%- include('partials/_item_row', { item: null, i: 'INDEX' }) %>
+                    </template>
                     
                     <!-- Add Item Button -->
                     <div class="mt-4 pt-3 border-top">
@@ -273,10 +221,6 @@
     </div>
 </div>
 
-<script>
-  // Make the weight options from the server available to the client-side script
-  window.weightOptions = <%- JSON.stringify(weightOptions) %>;
-</script>
 <script src="/js/admin_create_edit.js"></script>
 <script src="/js/create_edit_input_validation.js"></script>
 

@@ -1,0 +1,69 @@
+<div class="mb-3 p-2 border rounded item-row" data-metal-type="<%= locals.item ? item.metal_type || 'Gold' : 'Gold' %>" data-row-index="<%= locals.i %>">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Item <span class="item-number"><%= locals.i + 1 %></span></h5>
+        <a href="#" class="remove-item-btn text-danger" style="display: none;">Remove</a>
+    </div>
+    <input type="hidden" name="items[<%= locals.i %>][id]" value="<%= locals.item ? item.id || '' : '' %>" class="item-id-input">
+    <input type="hidden" name="items[<%= locals.i %>][weightType]" id="weightTypeHidden<%= locals.i %>" value="<%= locals.item ? item.weight_type || '' : '' %>" class="weight-type-hidden">
+    <div class="item-details-row align-items-center">
+        <div class="col-item-name">
+            <label class="form-label">Item Name: <span class="text-danger">*</span></label>
+            <input type="text" class="form-control item-name-input" name="items[<%= locals.i %>][name]" value="<%= locals.item ? item.item_name || '' : '' %>">
+            <div class="invalid-feedback"></div>
+        </div>
+        <div class="col-metal-type">
+            <label class="form-label">Metal Type:</label>
+            <select class="form-select metal-type-select" name="items[<%= locals.i %>][metalType]">
+                <option value="Gold" <%= (locals.item && item.metal_type === 'Gold' ? 'selected' : '') %>>Gold</option>
+                <option value="Silver" <%= (locals.item && item.metal_type === 'Silver' ? 'selected' : '') %>>Silver</option>
+            </select>
+        </div>
+        <div class="col-qty">
+            <label class="form-label">Qty: <span class="text-danger">*</span></label>
+            <input type="number" class="form-control quantity-input" name="items[<%= locals.i %>][quantity]" value="<%= locals.item ? item.quantity || 1 : 1 %>" min="1">
+            <div class="invalid-feedback"></div>
+        </div>
+        <div class="col-percent">
+            <label class="form-label">%:</label>
+            <input type="number" class="form-control percent-input" name="items[<%= locals.i %>][percent]" value="<%= locals.item ? item.percent || '' : '' %>" step="0.01" min="0">
+        </div>
+        <div class="col-weight-type">
+            <label class="form-label">Weight Type: <span class="text-danger">*</span></label>
+            <select class="form-select weight-type-select" data-index="<%= locals.i %>">
+                <option value="" <%= (locals.item && !item.weight_type) ? 'selected' : '' %>>Select...</option>
+                <optgroup label="Metric">
+                    <option value="1" <%= (locals.item && item.weight_type == '1' ? 'selected' : '') %>>1g</option>
+                    <option value="5" <%= (locals.item && item.weight_type == '5' ? 'selected' : '') %>>5g</option>
+                    <option value="10" <%= (locals.item && item.weight_type == '10' ? 'selected' : '') %>>10g</option>
+                    <option value="20" <%= (locals.item && item.weight_type == '20' ? 'selected' : '') %>>20g</option>
+                    <option value="50" <%= (locals.item && item.weight_type == '50' ? 'selected' : '') %>>50g</option>
+                    <option value="100" <%= (locals.item && item.weight_type == '100' ? 'selected' : '') %>>100g</option>
+                    <option value="500" <%= (locals.item && item.weight_type == '500' ? 'selected' : '') %>>500g</option>
+                    <option value="1000" <%= (locals.item && item.weight_type == '1000' ? 'selected' : '') %>>1 Kgs</option>
+                </optgroup>
+                <optgroup label="Imperial/Other">
+                    <option value="0.0" <%= (locals.item && item.weight_type == '0.0' ? 'selected' : '') %>>Half Sovereign</option>
+                    <option value="0" <%= (locals.item && item.weight_type == '0' ? 'selected' : '') %>>Sovereign</option>
+                    <option value="1.555175" <%= (locals.item && item.weight_type == '1.555175' ? 'selected' : '') %>>1/20 oz</option>
+                    <option value="3.11035" <%= (locals.item && item.weight_type == '3.11035' ? 'selected' : '') %>>1/10 oz</option>
+                    <option value="7.775869" <%= (locals.item && item.weight_type == '7.775869' ? 'selected' : '') %>>1/4 oz</option>
+                    <option value="15.55175" <%= (locals.item && item.weight_type == '15.55175' ? 'selected' : '') %>>1/2 oz</option>
+                    <option value="31.1035" <%= (locals.item && item.weight_type == '31.1035' ? 'selected' : '') %>>1 oz</option>
+                    <option value="62.207" <%= (locals.item && item.weight_type == '62.207' ? 'selected' : '') %>>2 oz</option>
+                    <option value="155.5175" <%= (locals.item && item.weight_type == '155.5175' ? 'selected' : '') %>>5 oz</option>
+                    <option value="311.035" <%= (locals.item && item.weight_type == '311.035' ? 'selected' : '') %>>10 oz</option>
+                </optgroup>
+            </select>
+            <div class="invalid-feedback"></div>
+        </div>
+        <div class="col-weight">
+            <label class="form-label">Metal Weight (g): <span class="text-danger">*</span><span class="text-primary">*</span></label>
+            <input type="number" class="form-control weight-input" name="items[<%= locals.i %>][weight]" value="<%= locals.item ? item.weight || '' : '' %>" step="any" placeholder="0.0000" min="0">
+            <div class="invalid-feedback"></div>
+        </div>
+        <div class="col-live-price">
+            <label>Live Price:</label>
+            <p><strong>$<span class="live-price">0.00</span> NZD</strong></p>
+        </div>
+    </div>
+</div>
