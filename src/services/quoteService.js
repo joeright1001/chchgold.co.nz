@@ -143,9 +143,9 @@ async function createQuote(customerDetails, items, spotPrices) {
             INSERT INTO quotes (
                 short_id, quote_number, customer_first_name, customer_surname, customer_mobile, customer_email, zoho_id, 
                 spot_price_gold_gram_nzd, spot_price_silver_gram_nzd, spot_price_gold_ounce_nzd, spot_price_silver_ounce_nzd, 
-                totals
+                spot_price_updated_at, totals
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), $12)
             RETURNING *;
         `;
         const quoteValues = [
