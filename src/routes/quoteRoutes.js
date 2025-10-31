@@ -55,6 +55,21 @@ router.post('/edit/:id/refresh-price', staffAuth, async (req, res) => {
 
 // CUSTOMER ROUTE: Renders the login page for a specific quote (using short_id).
 router.get('/:shortId/login', (req, res) => {
+  const { admin_password } = req.query;
+
+  // If the admin password is provided and correct, log in and redirect
+  if (admin_password && admin_password === process.env.ADMIN_PASSWORD) {
+    req.session.authenticatedQuoteId = req.params.shortId;
+    return req.session.save((err) => {
+      if (err) {
+        logger.error(`Error saving session for quote ${req.params.shortId}`, { error: err.message });
+        return res.status(500).send('Session error during auto-login.');
+      }
+      return res.redirect(`/quote/${req.params.shortId}`);
+    });
+  }
+
+  // Otherwise, render the standard login page
   res.render('customer_login', { quoteId: req.params.shortId, error: null });
 });
 

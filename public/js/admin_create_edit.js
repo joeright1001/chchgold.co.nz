@@ -43,19 +43,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- UI/UX EVENT LISTENERS ---
 
     /**
-     * Handles the "Copy URL" button functionality in edit mode.
-     * Selects the URL text, copies it to the clipboard, and provides brief user feedback.
+     * Handles the "Open URL" button functionality in edit mode.
+     * Opens the customer-facing URL in a new tab with an admin password for auto-login.
      */
-    const copyUrlBtn = document.getElementById('copy-url-btn');
-    if (copyUrlBtn) {
-        const customerUrlInput = document.getElementById('customer-url');
-        copyUrlBtn.addEventListener('click', () => {
-            customerUrlInput.select();
-            document.execCommand('copy'); // Note: execCommand is deprecated but simple for this use case.
-            copyUrlBtn.textContent = 'Copied!';
-            setTimeout(() => {
-                copyUrlBtn.textContent = 'Copy';
-            }, 2000);
+    const openUrlBtn = document.getElementById('open-url-btn');
+    if (openUrlBtn) {
+        openUrlBtn.addEventListener('click', () => {
+            const customerUrl = document.getElementById('customer-url').value;
+            const adminPassword = card.dataset.adminPassword;
+            
+            if (customerUrl && adminPassword) {
+                // Construct the URL for the login page, not the direct quote view,
+                // so the auto-login logic in the GET /login route can be triggered.
+                const loginUrl = `${customerUrl}/login?admin_password=${encodeURIComponent(adminPassword)}`;
+                window.open(loginUrl, '_blank');
+            } else {
+                alert('Could not open the URL. Customer URL or admin password not found.');
+            }
         });
     }
 

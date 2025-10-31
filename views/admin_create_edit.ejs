@@ -19,7 +19,8 @@
 <div class="card" id="admin-create-edit-card"
     data-quote-id="<%= isEditMode ? quote.id : '' %>" 
     data-gold-gram-nzd="<%= isEditMode ? (Number(quote.spot_price_gold_gram_nzd) || 0) : 0 %>" 
-    data-silver-gram-nzd="<%= isEditMode ? (Number(quote.spot_price_silver_gram_nzd) || 0) : 0 %>">
+    data-silver-gram-nzd="<%= isEditMode ? (Number(quote.spot_price_silver_gram_nzd) || 0) : 0 %>"
+    data-admin-password="<%= process.env.ADMIN_PASSWORD %>">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h1><%= isEditMode ? `Edit Quote: ${quote.quote_number}` : 'Create New Bullion Quote' %></h1>
     </div>
@@ -103,7 +104,7 @@
                 <div class="card-body">
                     <div class="input-group">
                         <input type="text" class="form-control" id="customer-url" value="<%= customerUrl %>" readonly>
-                        <button class="btn btn-outline-secondary" type="button" id="copy-url-btn">Copy</button>
+                        <button class="btn btn-outline-secondary" type="button" id="open-url-btn">Open</button>
                     </div>
                 </div>
             </div>
