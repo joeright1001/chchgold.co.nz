@@ -1,3 +1,19 @@
+/* Item Row Layout */
+.item-details-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.col-item-name { flex: 3; min-width: 200px; }
+.col-metal-type { flex: 1; min-width: 100px; }
+.col-qty { flex: 0.5; min-width: 70px; }
+.col-percent { flex: 0.5; min-width: 70px; }
+.col-weight-type { flex: 1; min-width: 150px; }
+.col-weight { flex: 1; min-width: 160px; }
+.col-live-price { flex: 1; min-width: 120px; }
+
 /* Status Badge Styles */
 .status-badge {
     display: inline-block;
