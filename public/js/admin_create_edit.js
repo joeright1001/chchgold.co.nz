@@ -276,8 +276,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <input type="hidden" name="items[${index}][weightType]" id="weightTypeHidden${index}" value="" class="weight-type-hidden">
             <div class="item-details-row align-items-center">
                 <div class="col-item-name">
-                    <label class="form-label">Item Name:</label>
+                    <label class="form-label">Item Name: <span class="text-danger">*</span></label>
                     <input type="text" class="form-control item-name-input" name="items[${index}][name]" value="">
+                    <div class="invalid-feedback"></div>
                 </div>
                 <div class="col-metal-type">
                     <label class="form-label">Metal Type:</label>
@@ -287,20 +288,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     </select>
                 </div>
                 <div class="col-qty">
-                    <label class="form-label">Qty:</label>
+                    <label class="form-label">Qty: <span class="text-danger">*</span></label>
                     <input type="number" class="form-control quantity-input" name="items[${index}][quantity]" value="1" min="1">
+                    <div class="invalid-feedback"></div>
                 </div>
                 <div class="col-percent">
                     <label class="form-label">%:</label>
                     <input type="number" class="form-control percent-input" name="items[${index}][percent]" value="" step="0.01" min="0">
                 </div>
                 <div class="col-weight-type">
-                    <label class="form-label">Weight Type:</label>
+                    <label class="form-label">Weight Type: <span class="text-danger">*</span></label>
                     <select class="form-select weight-type-select" data-index="${index}"></select>
+                    <div class="invalid-feedback"></div>
                 </div>
                 <div class="col-weight">
-                    <label class="form-label">Weight (g):</label>
+                    <label class="form-label">Metal Weight (g): <span class="text-danger">*</span><span class="text-primary">*</span></label>
                     <input type="number" class="form-control weight-input" name="items[${index}][weight]" value="" step="any" placeholder="0.0000" min="0">
+                    <div class="invalid-feedback"></div>
                 </div>
                 <div class="col-live-price">
                     <label>Live Price:</label>
