@@ -199,7 +199,7 @@
                         <h3>Quoted Price</h3>
                     </div>
                     <div class="card-body">
-                        <p>This price is tied to the quote number: <%= quote.quote_number %>. Your personal details have not been attached to this record so please refer to this number when speaking with a dealer.</p>
+                        <p>This quoted price is tied to this reference number:  <%= quote.quote_number %>. Your personal details have not been attached to this record so please refer to this number when speaking with a dealer.</p>
                         <div class="table-responsive">
                             <table class="table quoted-price-table <%= quote.show_quoted_rate ? 'show-rate' : '' %>">
                                 <thead>
@@ -311,7 +311,7 @@
                             <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="bold">1</text>
                         </svg>
                         <h5 class="mb-3" style="padding-bottom: 20px;">In-Person</h5>
-                        <p class="mb-3"><strong>Make a time to trade face to face or discuss any questions.</strong> Our premises is convenient, light, friendly and secure. You will be our only client. Cash and bank transfer are available on the day.</p>
+                        <p class="mb-3"><strong>Make a time to trade face to face or discuss any questions.</strong> Our premises is convenient, light, friendly and secure. Booking is essential for entry. Cash* and bank transfer are available on the day.</p>
                         <a href="https://www.christchurchgold.co.nz/sell-gold?sbq=<%= quote.quote_number %>" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #ced4da; color: #000;">Book a Time</a>
                     </div>
                     <div class="col-md-4 text-start mb-4">
@@ -399,7 +399,7 @@
                     <div class="card-body">
                         <ul class="mb-0" style="line-height: 2;">
                             <li>Bank, Cash* and in some cases digital currency* payment options are available.</li>
-                            <li>Cash is restricted to $10,000 per day per person due to <a href="https://www.dia.govt.nz/AML-CFT-High-value-dealers-Prohibited-cash-transactions-for-specified-high-value-goods" target="_blank" rel="noopener noreferrer">Section 67A of the AML/CFT Act</a>.</li>
+                            <li>Cash is restricted to $10,000 per day per person per day due to <a href="https://www.dia.govt.nz/AML-CFT-High-value-dealers-Prohibited-cash-transactions-for-specified-high-value-goods" target="_blank" rel="noopener noreferrer">Section 67A of the AML/CFT Act</a>.</li>
                             <li>Bank payments are typically processed within 2-24 hours of agreement.</li>
                         </ul>
                         <p class="mt-2"><small>*At our discretion, may require additional information and may attract additional fees.</small></p>
@@ -433,12 +433,13 @@
                         <h2>In-Person Trade</h2>
                     </div>
                     <div class="card-body">
-                         <p>When trading in person, please observe the following:.</p>
+                         <p>When trading in person, please note the following:.</p>
                         <ul class="mb-0 info-list" style="line-height: 1.5;">
-                            <li>Parking is reserved directly outside the main entrance marked by two stone bollards with a reserved sign.</li>
-                            <li>Minimal signage is displayed for security reasons and you will be the only customers onsite. The entrance is to the left of Ideal Buildings.</li>
-                            <li>The entrance will be locked on arrival. Ring the black intercom or just call from your mobile. For new customers, ID will need to be displayed before entry.</li>
-                            <li>Photo ID will be photocopied (paper only record) when completing a trade in accordance with the Secondhand Dealers and Pawnbrokers Act 2004.</li>
+                            <li>We operate by appointment only for security reasons.</li>
+                            <li>Parking is reserved directly outside the main entrance marked by two stone bollards.</li>
+                            <li>Minimal signage is displayed for security reasons. The entrance is to the left of Ideal Buildings.</li>
+                            <li>The premise is locked at all times. Ring the black intercom or just call from your mobile. For new customers, ID will need to be displayed before entry.</li>
+                            <li>Photo ID is required to complete the trade due to the Secondhand Dealers and Pawnbrokers Act 2004. ID will be photocopied (paper only record).</li>
                         </ul>
                         <blockquote class="mt-3" style="font-size: 1.2em; font-weight: bold; font-style: italic; border-left: 5px solid #ccc; padding-left: 15px; color: #555;">
                             New customers will need to display a valid photo ID on arrival.
