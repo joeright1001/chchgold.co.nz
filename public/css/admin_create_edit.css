@@ -13,8 +13,8 @@
 }
 
 .col-item-name {
-    flex: 0 0 30%;
-    max-width: 30%;
+    flex: 0 0 27%;
+    max-width: 27%;
 }
 
 .col-metal-type {
@@ -38,8 +38,8 @@
 }
 
 .col-weight {
-    flex: 0 0 12%;
-    max-width: 12%;
+    flex: 0 0 15%;
+    max-width: 15%;
 }
 
 .col-live-price {

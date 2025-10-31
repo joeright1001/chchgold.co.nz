@@ -49,9 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const quoteId = card.dataset.quoteId;
     const isEditMode = !!quoteId;
 
-    // Initialize contact validation
-    initContactValidation('admin-create-edit-form');
-
     // Handle copy URL button (only in edit mode)
     const copyUrlBtn = document.getElementById('copy-url-btn');
     if (copyUrlBtn) {
