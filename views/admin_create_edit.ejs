@@ -138,7 +138,12 @@
                             <p>1 Troy Oz Silver:</p>
                             <p>1 gram Gold:</p>
                             <p>1 gram Silver:</p>
-                            <p class="mt-3 last-updated-text"><i>Last Updated: <span id="last-updated">Not yet loaded</span></i></p>
+                            <% 
+                                const spotPriceLastUpdated = isEditMode && quote.spot_price_updated_at 
+                                    ? new Date(quote.spot_price_updated_at).toLocaleString() 
+                                    : 'Not yet loaded';
+                            %>
+                            <p class="mt-3 last-updated-text"><i>Last Updated: <span id="last-updated"><%= spotPriceLastUpdated %></span></i></p>
                             <div id="price-error" class="text-danger mt-2"></div>
                             <div class="mt-3">
                                 <button type="button" id="<%= isEditMode ? 'refresh-price-btn' : 'get-live-price-btn' %>" class="btn btn-info">

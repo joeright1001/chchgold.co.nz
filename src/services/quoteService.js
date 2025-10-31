@@ -262,7 +262,7 @@ async function updateQuotePrices(id) {
                 spot_price_silver_gram_nzd = $2,
                 spot_price_gold_ounce_nzd = $3,
                 spot_price_silver_ounce_nzd = $4,
-                updated_at = NOW()
+                spot_price_updated_at = NOW()
             WHERE id = $5
             RETURNING *;
         `;

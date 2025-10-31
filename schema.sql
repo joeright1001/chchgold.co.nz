@@ -15,6 +15,7 @@ CREATE TABLE quotes (
     spot_price_silver_gram_nzd DECIMAL(10, 4),
     spot_price_gold_ounce_nzd DECIMAL(10, 4),
     spot_price_silver_ounce_nzd DECIMAL(10, 4),
+    spot_price_updated_at TIMESTAMPTZ,
     totals JSONB,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
