@@ -5,21 +5,21 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h1></h1>
+                    <h5>Sell Your Bullion</h5>
                 </div>
                 <div class="card-body" >
-                    <p>To securely view your quote, please enter the mobile number or email address associated with it. Admins can also log in using the admin password.</p>
+                    <!--<p>Bullion pricing at: <i><%= new Date(quote.updated_at).toLocaleString('en-NZ', { dateStyle: 'long', timeStyle: 'short' }) %></i></p>
                     <% if (error) { %>
                         <div class="alert alert-danger" role="alert">
                             <%= error %>
                         </div>
-                    <% } %>
+                    <% } %>-->
                     <form action="/quote/<%= quoteId %>/login" method="POST">
                         <div class="mb-3">
-                            <label for="credential" class="form-label">Mobile, Email, or Admin Password:</label>
+                            <label for="credential" class="form-label">To view current pricing, please logon using the provide password. All record permentaly delete after 14 days.</label>
                             <input type="password" class="form-control" id="credential" name="credential" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">View Quote</button>
+                        <button type="submit" class="btn btn-primary">View</button>
                     </form>
                 </div>
             </div>

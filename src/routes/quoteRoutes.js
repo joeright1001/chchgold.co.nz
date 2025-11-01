@@ -54,23 +54,43 @@ router.post('/edit/:id/refresh-price', staffAuth, async (req, res) => {
 });
 
 // CUSTOMER ROUTE: Renders the login page for a specific quote (using short_id).
-router.get('/:shortId/login', (req, res) => {
-  const { admin_password } = req.query;
+router.get('/:shortId/login', async (req, res) => {
+  try {
+    const { shortId } = req.params;
+    const { admin_password, customer_password } = req.query;
 
-  // If the admin password is provided and correct, log in and redirect
-  if (admin_password && admin_password === process.env.ADMIN_PASSWORD) {
-    req.session.authenticatedQuoteId = req.params.shortId;
-    return req.session.save((err) => {
-      if (err) {
-        logger.error(`Error saving session for quote ${req.params.shortId}`, { error: err.message });
-        return res.status(500).send('Session error during auto-login.');
-      }
-      return res.redirect(`/quote/${req.params.shortId}`);
+    // If the admin or customer password is provided and correct, log in and redirect
+    const isAdmin = admin_password && admin_password === process.env.ADMIN_PASSWORD;
+    const isCustomer = customer_password && customer_password === process.env.CUSTOMER_PASSWORD;
+
+    if (isAdmin || isCustomer) {
+      req.session.authenticatedQuoteId = shortId;
+      return req.session.save((err) => {
+        if (err) {
+          logger.error(`Error saving session for quote ${shortId}`, { error: err.message });
+          return res.status(500).send('Session error during auto-login.');
+        }
+        return res.redirect(`/quote/${shortId}`);
+      });
+    }
+
+    // Fetch quote data to pass to the login page
+    const quoteData = await quoteService.getQuoteByShortId(shortId);
+    if (!quoteData) {
+      // Handle case where quote is not found
+      return res.status(404).send('Quote not found');
+    }
+
+    // Otherwise, render the standard login page with quote data
+    res.render('customer_login', {
+      quoteId: shortId,
+      quote: quoteData.quote,
+      error: null,
     });
+  } catch (error) {
+    logger.error(`Error rendering login page for quote ${req.params.shortId}`, { error: error.message });
+    res.status(500).send('Server error');
   }
-
-  // Otherwise, render the standard login page
-  res.render('customer_login', { quoteId: req.params.shortId, error: null });
 });
 
 // CUSTOMER ROUTE: Handles the login attempt (using short_id).
@@ -79,8 +99,9 @@ router.post('/:shortId/login', async (req, res) => {
     const { shortId } = req.params;
     const { credential } = req.body;
 
-    // Check for admin password first
+    // Check for admin or customer password
     const isAdmin = credential === process.env.ADMIN_PASSWORD;
+    const isCustomerPassword = credential === process.env.CUSTOMER_PASSWORD;
 
     // Get quote by short_id to get the UUID
     const quoteData = await quoteService.getQuoteByShortId(shortId);
@@ -91,11 +112,11 @@ router.post('/:shortId/login', async (req, res) => {
       });
     }
 
-    // Validate customer credential OR check if it's an admin
+    // Validate customer credential OR check if it's an admin or customer password
     const isValidCustomer = await quoteService.validateCustomerCredential(quoteData.quote.id, credential);
 
-    if (isValidCustomer || isAdmin) {
-      // If a valid customer logs in (not admin), update the viewed status
+    if (isValidCustomer || isAdmin || isCustomerPassword) {
+      // If a valid customer logs in (not admin or generic customer password), update the viewed status
       if (isValidCustomer) {
         await quoteService.updateQuoteViewedStatus(quoteData.quote.id);
       }
