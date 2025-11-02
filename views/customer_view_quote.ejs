@@ -146,17 +146,17 @@
         <% if (quote.status === 'expired') { %>
             <div class="card text-white bg-dark">
                 <div class="card-header">
-                    <h1>Quote Expired</h1>
+                    <h1>Price Expired</h1>
                 </div>
                 <div class="card-body">
-                    <p>This quote has expired and is no longer valid. Please contact us to get a new quote.</p>
+                    <p>This price has expired and is no longer valid. Please contact us to get a new price.</p>
                     <a href="https://www.christchurchgold.co.nz" class="btn btn-primary">Go to Homepage</a>
                 </div>
             </div>
         <% } else { %>
             <div class="card">
                 <div class="card-header">
-                    <h1 class="text-start mb-0" style="padding-top: 10px; padding-bottom: 20px;">Bullion Quote: <%= quote.quote_number %></h1>
+                    <h1 class="text-start mb-0" style="padding-top: 10px; padding-bottom: 20px;">Bullion Pricing: <%= quote.quote_number %></h1>
                 </div>
                 <div class="card-body">
                 <div class="border rounded p-3 mb-4">
@@ -172,8 +172,8 @@
                         <h2 class="mb-0">Market Price</h2>
                     </div>
                     <div class="card-body">
-                        <p class="mb-2">All quotes are based on global gold & silver <a href="https://investingnews.com/daily/resource-investing/precious-metals-investing/gold-investing/gold-spot-price/" target="_blank" rel="noopener noreferrer">spot prices</a>. Pricing is based on major markets including <a href="https://www.ice.com/metals" target="_blank" rel="noopener noreferrer">ICE</a>, <a href="https://www.lbma.org.uk/prices-and-data/about-lbma-daily-auction-prices" target="_blank" rel="noopener noreferrer">LBMA</a>, <a href="https://www.investopedia.com/terms/c/comex.asp" target="_blank" rel="noopener noreferrer">COMEX</a>, as well as larger Asia makets (Shanghai, Hong Kong & Mumbai).</p>
-                        <p class="mb-4">On the day of selling, your quote will be updated to reflect current global activity. <b>If you are happy with the quoted price</b>, we suggest trading earlier as the market is volatile and likely to result in a price change.</p>
+                        <p class="mb-2">Prices are based upon the global gold & silver <a href="https://investingnews.com/daily/resource-investing/precious-metals-investing/gold-investing/gold-spot-price/" target="_blank" rel="noopener noreferrer">spot prices</a>. This figure is derived based on the major market activity (<a href="https://www.ice.com/metals" target="_blank" rel="noopener noreferrer">ICE</a>, <a href="https://www.lbma.org.uk/prices-and-data/about-lbma-daily-auction-prices" target="_blank" rel="noopener noreferrer">LBMA</a>, <a href="https://www.investopedia.com/terms/c/comex.asp" target="_blank" rel="noopener noreferrer">COMEX</a>) and also factors the larger Asia makets (Shanghai, Hong Kong & Mumbai).</p>
+                        <p class="mb-4">On the day of selling, your quote will be updated to reflect current global activity. <b>If you are happy with this price</b>, we suggest trading earlier as the market is volatile and likely to result in a price change.</p>
                        <h5 class="mb-3" style="padding-bottom: 20px;">Spot Price</h5>
                         <div class="row">
                             <div class="col-6">
@@ -196,10 +196,10 @@
 
                 <div class="card mb-4" style="margin-top: 40px">
                     <div class="card-header">
-                        <h3>Quoted Price</h3>
+                        <h3>Item Price</h3>
                     </div>
                     <div class="card-body">
-                        <p>This quoted price is tied to this reference number:  <%= quote.quote_number %>. Your personal details have not been attached to this record so please refer to this number when speaking with a dealer.</p>
+                        <p>This pricing is tied to this reference number:  <%= quote.quote_number %>. Your personal details have not been attached to this record so please refer to this number when speaking with a dealer.</p>
                         <div class="table-responsive">
                             <table class="table quoted-price-table <%= quote.show_quoted_rate ? 'show-rate' : '' %>">
                                 <thead>
